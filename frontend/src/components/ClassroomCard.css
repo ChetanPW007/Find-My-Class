@@ -1,0 +1,107 @@
+.classroom-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 20px;
+  transition: var(--transition);
+  animation: slideUp 0.5s ease both;
+  position: relative;
+  overflow: hidden;
+}
+
+.classroom-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  transition: var(--transition);
+}
+
+.classroom-card.free::before {
+  background: linear-gradient(90deg, var(--success), transparent);
+}
+.classroom-card.occupied::before {
+  background: linear-gradient(90deg, var(--danger), transparent);
+}
+
+.classroom-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(0, 102, 255, 0.3);
+  box-shadow: var(--shadow-md), 0 0 20px var(--primary-glow);
+}
+
+.cc-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.cc-type {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.cc-type-icon { font-size: 1rem; }
+.cc-type-label {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  display: inline-block;
+}
+.status-dot.free { background: var(--success); animation: pulse 2s ease-in-out infinite; }
+.status-dot.occupied { background: var(--danger); }
+
+.cc-name {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.cc-dept {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  margin-bottom: 14px;
+}
+
+.cc-info {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.cc-info-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+.cc-info-icon { font-size: 0.9rem; }
+
+.cc-occupied-info {
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.cc-occupied-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.85rem;
+  color: var(--text-primary);
+}

@@ -1,0 +1,358 @@
+/* ===== TIMETABLE GRID ===== */
+
+.tt-grid-wrapper {
+  position: relative;
+}
+
+.tt-grid-scroll {
+  overflow-x: auto;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  background: var(--bg-surface);
+}
+
+.tt-grid-table {
+  border-collapse: collapse;
+  min-width: 900px;
+  width: 100%;
+}
+
+/* Header row */
+.tt-day-header {
+  width: 80px;
+  min-width: 80px;
+  text-align: center;
+  background: var(--bg-dark);
+  color: var(--text-muted);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  padding: 12px 8px;
+  border-bottom: 1px solid var(--border);
+  border-right: 1px solid var(--border);
+}
+
+.tt-slot-header {
+  min-width: 110px;
+  padding: 10px 8px;
+  text-align: center;
+  background: var(--bg-dark);
+  border-bottom: 1px solid var(--border);
+  border-right: 1px solid rgba(255,255,255,0.05);
+}
+
+.tt-break-header {
+  min-width: 72px;
+  background: rgba(245, 158, 11, 0.06);
+}
+
+.tt-slot-num {
+  display: block;
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: var(--primary-light);
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.tt-slot-time {
+  display: block;
+  font-size: 0.72rem;
+  color: var(--text-secondary);
+  margin-top: 2px;
+  white-space: nowrap;
+}
+
+/* Day label column */
+.tt-day-label {
+  width: 80px;
+  min-width: 80px;
+  text-align: center;
+  padding: 8px;
+  border-right: 1px solid var(--border);
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  background: var(--bg-dark);
+}
+
+.tt-day-label span {
+  display: inline-block;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  color: var(--text-secondary);
+  background: var(--bg-surface-light);
+  padding: 4px 8px;
+  border-radius: 6px;
+}
+
+/* Break cells */
+.tt-break-cell {
+  background: repeating-linear-gradient(
+    45deg,
+    rgba(245, 158, 11, 0.04),
+    rgba(245, 158, 11, 0.04) 4px,
+    transparent 4px,
+    transparent 12px
+  );
+  border-right: 1px solid rgba(255,255,255,0.05);
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  text-align: center;
+  padding: 8px 4px;
+}
+
+.tt-break-cell span {
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: var(--warning);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  transform: rotate(180deg);
+}
+
+/* Subject cells */
+.tt-cell {
+  min-width: 110px;
+  max-width: 180px;
+  height: 72px;
+  padding: 8px;
+  border-right: 1px solid rgba(255,255,255,0.05);
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  vertical-align: middle;
+  transition: var(--transition);
+  position: relative;
+  overflow: hidden;
+}
+
+.tt-cell-editable {
+  cursor: pointer;
+}
+
+.tt-cell-editable:hover {
+  background: var(--bg-surface-hover) !important;
+}
+
+.tt-cell-empty {
+  background: transparent;
+}
+
+.tt-cell-filled {
+  background: color-mix(in srgb, var(--cell-color, var(--primary)) 12%, var(--bg-surface));
+  border-left: 3px solid var(--cell-color, var(--primary));
+}
+
+.tt-cell-active {
+  outline: 2px solid var(--primary);
+  outline-offset: -2px;
+}
+
+.tt-subject {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.tt-teacher {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  margin-top: 3px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.tt-span-badge {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  font-size: 0.58rem;
+  font-weight: 700;
+  background: var(--accent);
+  color: #000;
+  padding: 2px 5px;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.tt-empty-hint {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  text-align: center;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.tt-cell-editable:hover .tt-empty-hint {
+  opacity: 1;
+}
+
+/* ===== EDIT PANEL ===== */
+
+.tt-edit-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(6px);
+  z-index: 1100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.15s ease;
+}
+
+.tt-edit-panel {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  width: 90%;
+  max-width: 440px;
+  box-shadow: var(--shadow-lg), 0 0 40px rgba(0,102,255,0.15);
+  animation: slideUp 0.25s ease;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.tt-edit-header h3 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.tt-edit-meta {
+  display: block;
+  font-size: 0.8rem;
+  color: var(--primary-light);
+  margin-top: 4px;
+}
+
+.tt-edit-body {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.tt-span-toggle {
+  display: flex;
+  gap: 8px;
+}
+
+.tt-span-btn {
+  flex: 1;
+  padding: 10px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-light);
+  background: var(--bg-surface-light);
+  color: var(--text-secondary);
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition);
+  text-align: center;
+}
+
+.tt-span-btn:hover {
+  border-color: var(--primary);
+  color: var(--text-primary);
+}
+
+.tt-span-btn.active {
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+  border-color: var(--primary);
+  color: white;
+  box-shadow: 0 2px 10px var(--primary-glow);
+}
+
+.tt-edit-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+/* ===== SECTION SELECTOR BAR ===== */
+
+.tt-section-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding: 16px;
+  background: var(--bg-surface);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  margin-bottom: 16px;
+}
+
+.tt-section-bar label {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+
+.tt-section-input {
+  width: 100px !important;
+  text-transform: uppercase;
+  font-weight: 700;
+  letter-spacing: 1px;
+  font-size: 0.95rem !important;
+}
+
+.tt-section-chips {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.tt-chip {
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  background: var(--bg-surface-light);
+  border: 1px solid var(--border-light);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.tt-chip:hover {
+  border-color: var(--primary);
+  color: var(--primary-light);
+}
+
+.tt-chip.active {
+  background: rgba(0,102,255,0.15);
+  border-color: var(--primary);
+  color: var(--primary-light);
+}
+
+/* Legend */
+.tt-legend {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 12px;
+}
+
+.tt-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+}
+
+.tt-legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+}

@@ -1,0 +1,232 @@
+/* ===== SCHEDULE MONITOR ===== */
+
+.sm-wrapper {
+  position: relative;
+  display: inline-block;
+}
+
+/* Bell Button */
+.sm-bell {
+  position: relative;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1px solid var(--border-light);
+  background: var(--bg-surface-light);
+  color: var(--text-secondary);
+  font-size: 1.1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: var(--transition);
+}
+
+.sm-bell:hover {
+  border-color: var(--primary);
+  color: var(--text-primary);
+  background: var(--bg-surface-hover);
+}
+
+.sm-bell-active {
+  border-color: var(--warning);
+  color: var(--warning);
+  animation: bellShake 0.6s ease-in-out infinite alternate;
+  box-shadow: 0 0 12px rgba(245, 158, 11, 0.3);
+}
+
+@keyframes bellShake {
+  0%   { transform: rotate(-8deg); }
+  100% { transform: rotate(8deg); }
+}
+
+/* Unread badge */
+.sm-badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 4px;
+  border-radius: 9px;
+  background: var(--danger);
+  color: white;
+  font-size: 0.65rem;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid var(--bg-main);
+}
+
+/* Polling spinner */
+.sm-pulse {
+  position: absolute;
+  bottom: -2px;
+  right: -2px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--primary);
+  animation: smPulse 1.2s ease-in-out infinite;
+}
+
+@keyframes smPulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.4); opacity: 0.5; }
+}
+
+/* Notification panel */
+.sm-panel {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  width: 360px;
+  max-height: 460px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg), 0 0 30px rgba(0,0,0,0.3);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  z-index: 900;
+}
+
+@media (max-width: 480px) {
+  .sm-panel {
+    width: calc(100vw - 32px);
+    right: -16px;
+  }
+}
+
+.sm-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  background: var(--bg-surface-light);
+}
+
+.sm-action-btn {
+  font-size: 0.75rem;
+  padding: 3px 8px;
+  border-radius: 6px;
+  border: 1px solid var(--border-light);
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.sm-action-btn:hover {
+  color: var(--danger);
+  border-color: var(--danger);
+}
+
+/* Empty state */
+.sm-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 36px 20px;
+  gap: 8px;
+  color: var(--text-muted);
+  font-size: 1.8rem;
+}
+
+.sm-empty p {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+/* Notifications list */
+.sm-list {
+  overflow-y: auto;
+  flex: 1;
+  max-height: 340px;
+}
+
+/* Individual notification item */
+.sm-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--border);
+  transition: background 0.2s;
+}
+
+.sm-item:hover {
+  background: var(--bg-surface-hover);
+}
+
+.sm-item-warning {
+  border-left: 3px solid var(--warning);
+}
+
+.sm-item-ended {
+  border-left: 3px solid var(--danger);
+}
+
+.sm-item-info {
+  border-left: 3px solid var(--primary);
+}
+
+.sm-item-icon {
+  font-size: 1.1rem;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.sm-item-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.sm-item-msg {
+  font-size: 0.82rem;
+  color: var(--text-primary);
+  line-height: 1.4;
+  margin: 0;
+}
+
+.sm-item-time {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  margin-top: 3px;
+  display: block;
+}
+
+.sm-dismiss {
+  flex-shrink: 0;
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 1rem;
+  padding: 0 4px;
+  line-height: 1;
+  border-radius: 4px;
+  transition: color 0.2s;
+}
+
+.sm-dismiss:hover {
+  color: var(--danger);
+}
+
+/* Footer */
+.sm-footer {
+  padding: 8px 14px;
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  border-top: 1px solid var(--border);
+  background: var(--bg-surface-light);
+  text-align: center;
+}

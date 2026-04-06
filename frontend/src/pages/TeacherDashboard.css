@@ -1,0 +1,77 @@
+.teacher-page { min-height: 100vh; }
+
+.section { margin-bottom: 36px; }
+.section-title {
+  font-size: 1.2rem;
+  font-weight: 700;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.teacher-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 16px;
+}
+
+.teacher-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 20px;
+  transition: var(--transition);
+}
+.teacher-card:hover {
+  border-color: rgba(0, 102, 255, 0.2);
+  box-shadow: var(--shadow-md);
+}
+.teacher-card.active-class {
+  border-color: rgba(16, 185, 129, 0.4);
+  box-shadow: 0 0 20px rgba(16, 185, 129, 0.1);
+}
+.teacher-card.is-occupied {
+  opacity: 0.7;
+}
+
+.tc-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+.tc-header h3 { font-size: 1.05rem; font-weight: 700; }
+
+.tc-details {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 16px;
+}
+.tc-detail {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+.start-form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.tc-clickable {
+  cursor: pointer;
+  padding: 4px;
+  margin: -4px;
+  border-radius: var(--radius-sm);
+  transition: background 0.2s;
+}
+
+.tc-clickable:hover {
+  background: rgba(139, 92, 246, 0.05);
+}
+
+@media (max-width: 640px) {
+  .teacher-grid { grid-template-columns: 1fr; }
+}

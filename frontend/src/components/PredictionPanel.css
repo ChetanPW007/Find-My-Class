@@ -1,0 +1,105 @@
+.prediction-panel { }
+
+.pred-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+  margin-bottom: 24px;
+}
+
+.pred-stat-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  text-align: center;
+  transition: var(--transition);
+}
+.pred-stat-card:hover {
+  border-color: var(--primary);
+  box-shadow: var(--shadow-glow);
+}
+.pred-stat-value {
+  display: block;
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: var(--primary-light);
+}
+.pred-stat-label {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.train-result {
+  padding: 14px 18px;
+  border-radius: var(--radius-md);
+  margin-bottom: 24px;
+  font-size: 0.9rem;
+}
+.train-result.success {
+  background: var(--success-bg);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  color: var(--success);
+}
+.train-result.warning {
+  background: var(--warning-bg);
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  color: var(--warning);
+}
+
+.pred-form-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  margin-bottom: 24px;
+}
+.pred-form-card h3 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+.pred-desc {
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+  margin-bottom: 18px;
+}
+.pred-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.pred-result {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 24px;
+  border-radius: var(--radius-lg);
+  animation: slideUp 0.3s ease;
+}
+.pred-result.free {
+  background: var(--success-bg);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+.pred-result.occupied {
+  background: var(--danger-bg);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.pred-result-icon { font-size: 3rem; }
+
+.pred-result-info h3 {
+  font-size: 1.2rem;
+  margin-bottom: 4px;
+}
+.pred-result-info h3 .free { color: var(--success); }
+.pred-result-info h3 .occupied { color: var(--danger); }
+.pred-result-info p { font-size: 0.9rem; color: var(--text-secondary); }
+.pred-details { font-size: 0.8rem !important; color: var(--text-muted) !important; }
+
+@media (max-width: 768px) {
+  .pred-stats { grid-template-columns: repeat(2, 1fr); }
+}
