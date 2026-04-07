@@ -47,6 +47,8 @@ def search_classrooms():
             {"room_number": regex},
             {"current_subject": regex},
             {"current_teacher": regex},
+            {"current_section": regex},
+            {"landmark": regex},
             {"type": regex},
         ]
     }
