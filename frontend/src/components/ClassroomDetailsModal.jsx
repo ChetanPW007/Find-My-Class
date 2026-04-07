@@ -5,11 +5,13 @@ import './ClassroomDetailsModal.css';
 function ClassroomDetailsModal({ classroom, onClose, role, onStartClass, loading: actionLoading }) {
   const [upcoming, setUpcoming] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [showStartForm, setShowStartForm] = useState(false);
   const [subject, setSubject] = useState('');
   const [semester, setSemester] = useState('1');
+  const [section, setSection] = useState('');
   const c = classroom;
   const isOccupied = c.status === 'occupied';
+
+  const [showStartForm, setShowStartForm] = useState(false);
 
   useEffect(() => {
     // Lock body scroll on mount
@@ -82,6 +84,13 @@ function ClassroomDetailsModal({ classroom, onClose, role, onStartClass, loading
                       <select className="select" value={semester} onChange={(e) => setSemester(e.target.value)} style={{ flex: 1 }}>
                         {[1,2,3,4,5,6,7,8].map(s => <option key={s} value={s}>Sem {s}</option>)}
                       </select>
+                      <input 
+                        className="input" 
+                        placeholder="Sec (e.g. A)" 
+                        value={section} 
+                        onChange={(e) => setSection(e.target.value)} 
+                        style={{ flex: 1 }}
+                      />
                     </div>
                     <div style={{ display: 'flex', gap: '8px' }}>
                       <button className="btn btn-ghost" onClick={() => setShowStartForm(false)} style={{ flex: 1 }}>Cancel</button>
@@ -89,7 +98,7 @@ function ClassroomDetailsModal({ classroom, onClose, role, onStartClass, loading
                         className="btn btn-success" 
                         style={{ flex: 1 }} 
                         disabled={actionLoading}
-                        onClick={() => onStartClass(c._id, 'start', subject, semester)}
+                        onClick={() => { onStartClass(c._id, 'start', subject, semester, section); setShowStartForm(false); }}
                       >
                         {actionLoading ? 'Starting...' : '✅ Confirm'}
                       </button>
@@ -114,6 +123,12 @@ function ClassroomDetailsModal({ classroom, onClose, role, onStartClass, loading
                   <span className="label">Room No.</span>
                   <span className="value">{c.room_number}</span>
                 </div>
+                {c.landmark && (
+                  <div className="cd-info-item">
+                    <span className="label">Landmark</span>
+                    <span className="value">{c.landmark}</span>
+                  </div>
+                )}
                 <div className="cd-info-item">
                   <span className="label">Capacity</span>
                   <span className="value">{c.capacity || 'N/A'} people</span>
@@ -148,8 +163,8 @@ function ClassroomDetailsModal({ classroom, onClose, role, onStartClass, loading
                   <div className="cd-occ-item">
                     <span className="icon">🎓</span>
                     <div>
-                      <span className="label">Student Semester</span>
-                      <span className="value">Semester {c.current_semester || 'N/A'}</span>
+                      <span className="label">Batch Details</span>
+                      <span className="value">Sem {c.current_semester || 'N/A'} {c.current_section && `| Sec: ${c.current_section}`}</span>
                     </div>
                   </div>
                 </div>

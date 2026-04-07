@@ -38,10 +38,10 @@ function TeacherDashboard() {
     setLoading(false);
   };
 
-  const handleStatusUpdate = async (classroomId, action, subject = '', semester = '') => {
+  const handleStatusUpdate = async (classroomId, action, subject = '', semester = '', section = '') => {
     setActionLoading((prev) => ({ ...prev, [classroomId]: true }));
     try {
-      await updateClassroomStatus(classroomId, { action, subject, semester });
+      await updateClassroomStatus(classroomId, { action, subject, semester, section });
       await loadClassrooms();
       showToast(action === 'start' ? '✅ Class started!' : '🔴 Class ended!', 'success');
     } catch (err) {
@@ -132,8 +132,8 @@ function TeacherDashboard() {
                           <span className="badge badge-occupied">OCCUPIED</span>
                         </div>
                         <div className="tc-details">
-                          <div className="tc-detail">📚 {c.current_subject || 'No subject'}</div>
-                          <div className="tc-detail">📍 {c.building}, {c.floor}</div>
+                          <div className="tc-detail">📚 {c.current_subject || 'No subject'} {c.current_section && `(Sec: ${c.current_section})`}</div>
+                          <div className="tc-detail">📍 {c.building}, {c.floor} {c.landmark && `— ${c.landmark}`}</div>
                           <div className="tc-detail">🚪 Room {c.room_number}</div>
                         </div>
                       </div>
@@ -204,10 +204,10 @@ function TeacherDashboard() {
                         </span>
                       </div>
                       <div className="tc-details">
-                        <div className="tc-detail">📍 {c.building}, {c.floor} — Room {c.room_number}</div>
+                        <div className="tc-detail">📍 {c.building}, {c.floor} — Room {c.room_number} {c.landmark && `(${c.landmark})`}</div>
                         <div className="tc-detail">🏢 {c.department}</div>
                         {c.status === 'occupied' && (
-                          <div className="tc-detail">👨‍🏫 {c.current_teacher} — {c.current_subject}</div>
+                          <div className="tc-detail">👨‍🏫 {c.current_teacher} — {c.current_subject} {c.current_section && `(${c.current_section})`}</div>
                         )}
                       </div>
                     </div>
@@ -215,7 +215,7 @@ function TeacherDashboard() {
                       <StartClassForm
                         classroomId={c._id}
                         loading={actionLoading[c._id]}
-                        onStart={(subject, sem) => handleStatusUpdate(c._id, 'start', subject, sem)}
+                        onStart={(subject, sem, sec) => handleStatusUpdate(c._id, 'start', subject, sem, sec)}
                       />
                     ) : c.current_teacher_id === userId ? (
                       <button
@@ -252,6 +252,7 @@ function TeacherDashboard() {
 function StartClassForm({ classroomId, loading, onStart }) {
   const [subject, setSubject] = useState('');
   const [semester, setSemester] = useState('1');
+  const [section, setSection] = useState('');
   const [showForm, setShowForm] = useState(false);
 
   if (!showForm) {
@@ -280,12 +281,19 @@ function StartClassForm({ classroomId, loading, onStart }) {
         >
           {[1,2,3,4,5,6,7,8].map(s => <option key={s} value={s}>Sem {s}</option>)}
         </select>
+        <input
+          className="input"
+          style={{ flex: 1 }}
+          placeholder="Sec (e.g. A)"
+          value={section}
+          onChange={(e) => setSection(e.target.value)}
+        />
       </div>
       <div style={{ display: 'flex', gap: '8px' }}>
         <button
           className="btn btn-success"
           style={{ flex: 1 }}
-          onClick={() => { onStart(subject, semester); setShowForm(false); setSubject(''); }}
+          onClick={() => { onStart(subject, semester, section); setShowForm(false); setSubject(''); setSection(''); }}
           disabled={loading}
         >
           {loading ? 'Starting...' : '✅ Confirm'}

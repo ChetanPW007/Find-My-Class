@@ -77,7 +77,7 @@ function ClassroomsManager({ showToast }) {
   const [allDepts, setAllDepts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
-  const [form, setForm] = useState({ name: '', department: '', building: '', floor: '', room_number: '', type: 'classroom', capacity: '', has_smartboard: false });
+  const [form, setForm] = useState({ name: '', department: '', building: '', floor: '', room_number: '', type: 'classroom', capacity: '', has_smartboard: false, landmark: '' });
   const [editId, setEditId] = useState(null);
 
   // Search, Filter, Sort state
@@ -137,14 +137,15 @@ function ClassroomsManager({ showToast }) {
       room_number: c.room_number, 
       type: c.type, 
       capacity: c.capacity?.toString() || '',
-      has_smartboard: !!c.has_smartboard
+      has_smartboard: !!c.has_smartboard,
+      landmark: c.landmark || ''
     });
     setEditId(c._id);
     setShowModal(true);
   };
 
   const resetForm = () => {
-    setForm({ name: '', department: '', building: '', floor: '', room_number: '', type: 'classroom', capacity: '', has_smartboard: false });
+    setForm({ name: '', department: '', building: '', floor: '', room_number: '', type: 'classroom', capacity: '', has_smartboard: false, landmark: '' });
     setEditId(null);
   };
 
@@ -213,16 +214,17 @@ function ClassroomsManager({ showToast }) {
       <div className="table-wrapper">
         <table>
           <thead>
-            <tr><th>Name</th><th>Department</th><th>Building</th><th>Floor</th><th>Room</th><th>Type</th><th>Capacity</th><th>Status</th><th>Actions</th></tr>
+            <tr><th>Name</th><th>Department</th><th>Location</th><th>Type</th><th>Capacity</th><th>Status</th><th>Actions</th></tr>
           </thead>
           <tbody>
             {filteredClassrooms.map((c) => (
               <tr key={c._id}>
                 <td><strong>{c.name}</strong></td>
                 <td>{c.department}</td>
-                <td>{c.building}</td>
-                <td>{c.floor}</td>
-                <td>{c.room_number}</td>
+                <td>
+                  <div>{c.building}, {c.floor}</div>
+                  <div style={{fontSize: '0.85em', color: '#666'}}>Room {c.room_number} {c.landmark && `(${c.landmark})`}</div>
+                </td>
                 <td><span className="badge badge-info">{c.type}</span></td>
                 <td>{c.capacity}</td>
                 <td><span className={`badge badge-${c.status}`}>{c.status}</span></td>
@@ -266,6 +268,7 @@ function ClassroomsManager({ showToast }) {
                 <div className="form-group"><label>Room Number</label><input className="input" value={form.room_number} onChange={(e) => setForm({...form, room_number: e.target.value})} required /></div>
                 <div className="form-group"><label>Capacity</label><input className="input" type="number" value={form.capacity} onChange={(e) => setForm({...form, capacity: e.target.value})} /></div>
               </div>
+              <div className="form-group"><label>Landmark / Near Location</label><input className="input" placeholder="e.g. Near Library" value={form.landmark} onChange={(e) => setForm({...form, landmark: e.target.value})} /></div>
               <div className="form-group">
                 <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '0.9rem' }}>
                   <input 

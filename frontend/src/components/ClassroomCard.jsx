@@ -32,7 +32,7 @@ function ClassroomCard({ classroom, onClick, delay = 0 }) {
       <div className="cc-info">
         <div className="cc-info-item">
           <span className="cc-info-icon">📍</span>
-          <span>{c.building}, {c.floor}</span>
+          <span>{c.building}, {c.floor}{c.landmark && ` — ${c.landmark}`}</span>
         </div>
         <div className="cc-info-item">
           <span className="cc-info-icon">🚪</span>
@@ -58,7 +58,7 @@ function ClassroomCard({ classroom, onClick, delay = 0 }) {
           </div>
           <div className="cc-occupied-row">
             <span>🎓</span>
-            <span>Semester {c.current_semester || 'N/A'}</span>
+            <span>Sem {c.current_semester || 'N/A'} {c.current_section && `| Sec: ${c.current_section}`}</span>
           </div>
         </div>
       )}

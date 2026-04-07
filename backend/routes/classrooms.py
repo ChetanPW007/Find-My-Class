@@ -73,11 +73,13 @@ def add_classroom():
         "type": data.get("type", "classroom"),
         "capacity": data.get("capacity", 0),
         "has_smartboard": data.get("has_smartboard", False),
+        "landmark": data.get("landmark", ""),
         "status": "free",
         "current_subject": "",
         "current_teacher": "",
         "current_teacher_id": "",
         "current_semester": "",
+        "current_section": "",
     }
     result = classrooms_col.insert_one(classroom)
     classroom["_id"] = str(result.inserted_id)
@@ -93,6 +95,7 @@ def update_classroom(id):
     allowed = [
         "name", "department", "building", "floor",
         "room_number", "type", "capacity", "has_smartboard",
+        "landmark"
     ]
     for field in allowed:
         if field in data:
@@ -138,6 +141,7 @@ def update_status(id):
             "current_teacher_id": request.user.get("user_id", ""),
             "current_subject": data.get("subject", ""),
             "current_semester": data.get("semester", ""),
+            "current_section": data.get("section", ""),
         }
     else:
         update = {
@@ -146,6 +150,7 @@ def update_status(id):
             "current_teacher_id": "",
             "current_subject": "",
             "current_semester": "",
+            "current_section": "",
         }
 
     classrooms_col.update_one({"_id": ObjectId(id)}, {"$set": update})
