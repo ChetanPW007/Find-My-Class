@@ -4,6 +4,7 @@ import { getClassrooms, updateClassroomStatus } from '../api';
 import Navbar from '../components/Navbar';
 import ClassroomDetailsModal from '../components/ClassroomDetailsModal';
 import ScheduleMonitor from '../components/ScheduleMonitor';
+import PlagiarismChecker from '../components/PlagiarismChecker';
 import './TeacherDashboard.css';
 
 function TeacherDashboard() {
@@ -15,6 +16,7 @@ function TeacherDashboard() {
   const [searchQuery, setSearchQuery] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
   const [selectedClassroom, setSelectedClassroom] = useState(null);
+  const [activeTab, setActiveTab] = useState('dashboard'); // 'dashboard' or 'plagiarism'
 
   const teacherName = localStorage.getItem('name') || 'Teacher';
   const userId = localStorage.getItem('user_id') || '';
@@ -111,12 +113,29 @@ function TeacherDashboard() {
           <p>Manage your classroom status. Students see these updates in real-time.</p>
         </div>
 
+        <div className="tabs" style={{ marginBottom: '24px', width: 'fit-content' }}>
+          <button 
+            className={`tab ${activeTab === 'dashboard' ? 'active' : ''}`}
+            onClick={() => setActiveTab('dashboard')}
+          >
+            🏫 Dashboard
+          </button>
+          <button 
+            className={`tab ${activeTab === 'plagiarism' ? 'active' : ''}`}
+            onClick={() => setActiveTab('plagiarism')}
+          >
+            🔍 Plagiarism Check
+          </button>
+        </div>
+
         {toast && (
           <div className={`toast toast-${toast.type}`}>{toast.message}</div>
         )}
 
         {loading ? (
           <div className="loading"><div className="spinner"></div></div>
+        ) : activeTab === 'plagiarism' ? (
+          <PlagiarismChecker />
         ) : (
           <>
             {/* My Active Classes */}

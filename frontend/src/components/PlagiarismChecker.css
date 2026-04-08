@@ -1,0 +1,228 @@
+.pc-container {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  animation: fadeIn 0.4s ease;
+}
+
+.pc-upload-card {
+  background: var(--bg-surface);
+  border: 2px dashed var(--border);
+  border-radius: var(--radius-lg);
+  padding: 40px;
+  text-align: center;
+  transition: var(--transition);
+  cursor: pointer;
+}
+
+.pc-upload-card:hover {
+  border-color: var(--primary);
+  background: var(--bg-surface-light);
+}
+
+.pc-upload-card.dragging {
+  border-color: var(--accent);
+  background: var(--accent-glow);
+}
+
+.pc-icon {
+  font-size: 3rem;
+  margin-bottom: 16px;
+  display: block;
+}
+
+.pc-file-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 20px;
+  justify-content: center;
+}
+
+.pc-file-chip {
+  background: var(--bg-surface-light);
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid var(--border);
+}
+
+.pc-results-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+  gap: 20px;
+}
+
+@media (max-width: 640px) {
+  .pc-results-grid { grid-template-columns: 1fr; }
+}
+
+.pc-result-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  transition: var(--transition);
+}
+
+.pc-result-card:hover { border-color: var(--primary-light); transform: translateY(-3px); }
+
+.pc-filename {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  word-break: break-all;
+}
+
+.pc-stats {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+}
+
+/* Donut Chart */
+.pc-donut {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: conic-gradient(
+    var(--danger) 0% var(--val),
+    var(--success) var(--val) 100%
+  );
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.pc-donut::before {
+  content: '';
+  position: absolute;
+  width: 60px;
+  height: 60px;
+  background: var(--bg-surface);
+  border-radius: 50%;
+}
+
+.pc-donut-text {
+  position: relative;
+  font-size: 0.9rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  text-align: center;
+}
+
+.pc-donut-label {
+  display: block;
+  font-size: 0.6rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+}
+
+.pc-stat-info { flex: 1; }
+.pc-stat-row { 
+  display: flex; 
+  justify-content: space-between; 
+  margin-bottom: 4px;
+  font-size: 0.85rem;
+}
+
+.pc-bar-container {
+  height: 8px;
+  background: var(--bg-surface-light);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.pc-bar { height: 100%; transition: width 1s ease-out; }
+
+.pc-similarity-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.pc-sim-item {
+  background: rgba(0, 102, 255, 0.05);
+  padding: 10px;
+  border-radius: var(--radius-sm);
+  border-left: 3px solid var(--primary);
+}
+
+.pc-sim-header {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.8rem;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.pc-analysis-text {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  background: var(--bg-surface-light);
+  padding: 12px;
+  border-radius: var(--radius-sm);
+  margin-top: 10px;
+}
+
+.pc-sources {
+  margin-top: 10px;
+}
+
+.pc-sources h4 { 
+  font-size: 0.8rem; 
+  color: var(--text-muted); 
+  text-transform: uppercase; 
+  margin-bottom: 6px; 
+}
+
+.pc-source-tag {
+  display: inline-block;
+  padding: 3px 8px;
+  background: var(--bg-surface-light);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  font-size: 0.75rem;
+  margin-right: 6px;
+  margin-bottom: 6px;
+  color: var(--primary-light);
+}
+
+.pc-total-stats {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+
+.pc-total-card {
+  flex: 1;
+  min-width: 200px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  padding: 20px;
+  border-radius: var(--radius-md);
+  text-align: center;
+}
+
+.pc-total-val {
+  display: block;
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: var(--accent);
+}
+
+.pc-total-label {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+}

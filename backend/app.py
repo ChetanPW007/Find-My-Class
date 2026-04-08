@@ -9,6 +9,7 @@ from routes.timetable import timetable_bp
 from routes.chatbot import chatbot_bp
 from routes.predict import predict_bp
 from routes.notifications import notifications_bp
+from routes.plagiarism import plagiarism_bp
 
 app = Flask(__name__)
 CORS(app)
@@ -22,6 +23,7 @@ app.register_blueprint(timetable_bp)
 app.register_blueprint(chatbot_bp)
 app.register_blueprint(predict_bp)
 app.register_blueprint(notifications_bp)
+app.register_blueprint(plagiarism_bp)
 
 
 @app.route("/api/health", methods=["GET"])

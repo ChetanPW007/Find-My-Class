@@ -476,13 +476,16 @@ tr:hover {
   padding: 40px;
 }
 .spinner {
-  width: 36px;
-  height: 36px;
-  border: 3px solid var(--border);
-  border-top-color: var(--primary);
-  border-radius: 50%;
-  animation: spin 0.8s linear infinite;
+  width: 48px;
+  height: 48px;
+  background: url('/favicon.svg') no-repeat center;
+  background-size: contain;
+  animation: spin3D 1.8s ease-in-out infinite;
+  perspective: 1000px;
 }
-@keyframes spin {
-  to { transform: rotate(360deg); }
+
+@keyframes spin3D {
+  0% { transform: rotateY(0deg); filter: drop-shadow(0 0 5px var(--primary-glow)); }
+  50% { transform: rotateY(180deg); filter: drop-shadow(0 0 15px var(--primary-glow)); }
+  100% { transform: rotateY(360deg); filter: drop-shadow(0 0 5px var(--primary-glow)); }
 }
