@@ -284,9 +284,10 @@ function StartClassForm({ classroomId, loading, onStart }) {
         <input
           className="input"
           style={{ flex: 1 }}
-          placeholder="Sec (e.g. A)"
+          placeholder="Sec (e.g. CY2A)"
           value={section}
-          onChange={(e) => setSection(e.target.value)}
+          maxLength={4}
+          onChange={(e) => setSection(e.target.value.toUpperCase())}
         />
       </div>
       <div style={{ display: 'flex', gap: '8px' }}>

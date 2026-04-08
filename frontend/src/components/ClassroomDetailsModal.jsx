@@ -86,9 +86,10 @@ function ClassroomDetailsModal({ classroom, onClose, role, onStartClass, loading
                       </select>
                       <input 
                         className="input" 
-                        placeholder="Sec (e.g. A)" 
+                        placeholder="Sec (e.g. CY2A)" 
                         value={section} 
-                        onChange={(e) => setSection(e.target.value)} 
+                        maxLength={4}
+                        onChange={(e) => setSection(e.target.value.toUpperCase())} 
                         style={{ flex: 1 }}
                       />
                     </div>
