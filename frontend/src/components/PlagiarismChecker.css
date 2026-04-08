@@ -226,3 +226,114 @@
   color: var(--text-muted);
   text-transform: uppercase;
 }
+
+.pc-history-view {
+  animation: fadeIn 0.4s ease;
+}
+
+.pc-history-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.pc-history-item {
+  padding: 20px;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--bg-card);
+  transition: var(--transition);
+}
+
+.pc-history-item:hover {
+  background: var(--bg-surface-light);
+  border-color: var(--primary);
+  transform: translateX(5px);
+}
+
+.pc-item-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.pc-item-meta strong {
+  font-size: 1.1rem;
+  color: var(--text-primary);
+}
+
+.pc-item-meta span {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.pc-item-stats {
+  text-align: right;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+}
+
+.pc-item-stats p {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  max-width: 300px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Modal Styles */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+}
+
+.modal {
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 32px;
+  width: 90%;
+  max-width: 500px;
+  box-shadow: var(--shadow-xl);
+}
+
+.modal h2 { margin-bottom: 24px; color: var(--text-primary); }
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.textarea {
+  width: 100%;
+  background: var(--bg-surface-light);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 12px;
+  color: var(--text-primary);
+  font-family: inherit;
+  resize: vertical;
+}
+
+.textarea:focus {
+  outline: none;
+  border-color: var(--primary);
+  background: var(--bg-surface);
+}
+

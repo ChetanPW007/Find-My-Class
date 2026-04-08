@@ -19,6 +19,7 @@ teachers_col = db["teachers"]
 timetable_col = db["timetable"]
 users_col = db["users"]
 notifications_col = db["notifications"]
+plagiarism_reports_col = db["plagiarism_reports"]
 
 # Seed in-memory database automatically on startup if empty!
 if "mongomock" in str(type(client)) and users_col.count_documents({}) == 0:
