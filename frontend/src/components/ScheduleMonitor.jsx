@@ -26,13 +26,22 @@ export default function ScheduleMonitor({ onClassroomFreed }) {
     const id = Date.now() + Math.random();
     setNotifications(prev => [{ ...notif, id, seen: false }, ...prev].slice(0, 20));
 
-    // Native Browser Notification
-    if (Notification.permission === 'granted') {
-      new Notification(`FindMyClass: ${notif.type === 'warning' ? '⚠️ Warning' : '🔴 Ended'}`, {
-        body: notif.message,
-        icon: '/favicon.ico', // Ensure favicon exists in public/
-        badge: '/favicon.ico'
+    // Native Browser Notification (Support for Desktop & Android)
+    const title = `FindMyClass: ${notif.type === 'warning' ? '⚠️ Warning' : '🔴 Ended'}`;
+    const options = {
+      body: notif.message,
+      icon: '/icons.svg',
+      badge: '/favicon.svg',
+      tag: 'schedule-alert', // Prevents flooding
+      vibrate: [200, 100, 200], // Vibration for Android
+    };
+
+    if ('serviceWorker' in navigator && Notification.permission === 'granted') {
+      navigator.serviceWorker.ready.then(registration => {
+        registration.showNotification(title, options);
       });
+    } else if (Notification.permission === 'granted') {
+      new Notification(title, options);
     }
 
     return id;
