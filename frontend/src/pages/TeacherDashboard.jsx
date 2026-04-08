@@ -114,12 +114,12 @@ function TeacherDashboard() {
         <ScheduleMonitor onClassroomFreed={handleAutoFree} />
       } />
       <div className="page">
-        <div className="page-header animate-fade-in">
-          <h1>Welcome, {teacherName} <span key={waveTrigger} className="waving-hand">👋</span></h1>
+        <div className="teacher-hero animate-fade-in">
+          <h1>👨‍🏫 Welcome, {teacherName} <span key={waveTrigger} className="waving-hand">👋</span></h1>
           <p>Manage your classroom status. Students see these updates in real-time.</p>
         </div>
 
-        <div className="tabs" style={{ marginBottom: '24px', width: 'fit-content' }}>
+        <div className="tabs" style={{ marginBottom: '24px', width: 'fit-content', margin: '0 auto 24px' }}>
           <button 
             className={`tab ${activeTab === 'dashboard' ? 'active' : ''}`}
             onClick={() => handleTabChange('dashboard')}

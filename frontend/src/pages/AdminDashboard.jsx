@@ -40,14 +40,14 @@ function AdminDashboard() {
     <div className="admin-page">
       <Navbar role="admin" name="Administrator" />
       <div className="page">
-        <div className="page-header animate-fade-in">
-          <h1>Admin Dashboard <span key={waveTrigger} className="waving-hand">👋</span></h1>
+        <div className="page-header animate-fade-in" style={{ textAlign: 'center', marginBottom: '32px' }}>
+          <h1>⚙️ Admin Dashboard <span key={waveTrigger} className="waving-hand">👋</span></h1>
           <p>Manage classrooms, teachers, departments, timetables, and ML models</p>
         </div>
 
         {toast && <div className={`toast toast-${toast.type}`}>{toast.message}</div>}
 
-        <div className="tabs admin-tabs">
+        <div className="tabs admin-tabs" style={{ margin: '0 auto 24px', width: 'fit-content' }}>
           {tabs.map((t) => (
             <button
               key={t.key}

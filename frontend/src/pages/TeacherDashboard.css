@@ -1,6 +1,10 @@
 .teacher-page { min-height: 100vh; }
 
 .section { margin-bottom: 36px; }
+.teacher-hero {
+  text-align: center;
+  margin-bottom: 32px;
+}
 .section-title {
   font-size: 1.2rem;
   font-weight: 700;
