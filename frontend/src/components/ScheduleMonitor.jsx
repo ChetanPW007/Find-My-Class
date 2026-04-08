@@ -16,6 +16,7 @@ export default function ScheduleMonitor({ onClassroomFreed }) {
   const [notifications, setNotifications] = useState([]); // { id, type, message, seen }
   const [open, setOpen] = useState(false);
   const [checking, setChecking] = useState(false);
+  const [activeToast, setActiveToast] = useState(null); // The most recent floating alert
   const sentWarnings = useRef(new Set());   // Set of "day-slot" keys already warned
   const sentEnded  = useRef(new Set());    // Set of "day-slot" keys already ended
   const panelRef = useRef(null);
@@ -25,6 +26,10 @@ export default function ScheduleMonitor({ onClassroomFreed }) {
   const addNotification = useCallback((notif) => {
     const id = Date.now() + Math.random();
     setNotifications(prev => [{ ...notif, id, seen: false }, ...prev].slice(0, 20));
+    
+    // Aesthetic Floating Toast
+    setActiveToast({ ...notif, id });
+    setTimeout(() => setActiveToast(prev => prev?.id === id ? null : prev), 6000);
 
     // Native Browser Notification (Support for Desktop & Android)
     const title = `FindMyClass: ${notif.type === 'warning' ? '⚠️ Warning' : '🔴 Ended'}`;
@@ -194,6 +199,19 @@ export default function ScheduleMonitor({ onClassroomFreed }) {
           <div className="sm-footer">
             Polling every 60s · Last check: {new Date().toLocaleTimeString()}
           </div>
+        </div>
+      )}
+
+      {/* Floating Aesthetic Toast */}
+      {activeToast && (
+        <div className={`sm-floating-toast sm-item-${activeToast.type} animate-glass-slide-up`}>
+          <span className="sm-item-icon">
+            {activeToast.type === 'warning' ? '⚠️' : '🔴'}
+          </span>
+          <div className="sm-item-body">
+            <p className="sm-item-msg">{activeToast.message}</p>
+          </div>
+          <button className="sm-dismiss" onClick={() => setActiveToast(null)}>×</button>
         </div>
       )}
     </div>
