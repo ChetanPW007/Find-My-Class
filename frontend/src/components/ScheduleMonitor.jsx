@@ -25,6 +25,16 @@ export default function ScheduleMonitor({ onClassroomFreed }) {
   const addNotification = useCallback((notif) => {
     const id = Date.now() + Math.random();
     setNotifications(prev => [{ ...notif, id, seen: false }, ...prev].slice(0, 20));
+
+    // Native Browser Notification
+    if (Notification.permission === 'granted') {
+      new Notification(`FindMyClass: ${notif.type === 'warning' ? '⚠️ Warning' : '🔴 Ended'}`, {
+        body: notif.message,
+        icon: '/favicon.ico', // Ensure favicon exists in public/
+        badge: '/favicon.ico'
+      });
+    }
+
     return id;
   }, []);
 
@@ -64,7 +74,6 @@ export default function ScheduleMonitor({ onClassroomFreed }) {
 
           // Auto-free: call classroom status API if classroom known
           if (cls.classroom) {
-            // We don't have classroom ID here, so we trigger the parent callback
             onClassroomFreed && onClassroomFreed(cls);
           }
 
@@ -79,7 +88,6 @@ export default function ScheduleMonitor({ onClassroomFreed }) {
         }
       }
     } catch (e) {
-      // Silently fail — don't break teacher dashboard
       console.warn('[ScheduleMonitor] check failed:', e.message);
     }
     setChecking(false);
@@ -87,7 +95,12 @@ export default function ScheduleMonitor({ onClassroomFreed }) {
 
   // Poll on mount and every POLL_INTERVAL_MS
   useEffect(() => {
-    // Reset tracking on mount (new day)
+    // Request notification permission
+    if ("Notification" in window && Notification.permission === "default") {
+      Notification.requestPermission();
+    }
+
+    // Reset tracking on mount
     sentWarnings.current = new Set();
     sentEnded.current    = new Set();
 
@@ -135,6 +148,9 @@ export default function ScheduleMonitor({ onClassroomFreed }) {
           <div className="sm-panel-header">
             <span>📅 Schedule Alerts</span>
             <div style={{ display: 'flex', gap: 6 }}>
+              <button className="sm-action-btn" onClick={() => addNotification({ type: 'warning', message: 'This is a test notification! It works! 🚀' })}>
+                Send Test
+              </button>
               <button className="sm-action-btn" onClick={dismissAll}>Clear all</button>
             </div>
           </div>
