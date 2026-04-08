@@ -40,7 +40,7 @@ function AdminDashboard() {
       <Navbar role="admin" name="Administrator" />
       <div className="page">
         <div className="page-header animate-fade-in">
-          <h1>Admin Dashboard</h1>
+          <h1>Admin Dashboard <span key={activeTab} className="waving-hand">👋</span></h1>
           <p>Manage classrooms, teachers, departments, timetables, and ML models</p>
         </div>
 

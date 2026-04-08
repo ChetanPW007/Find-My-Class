@@ -109,7 +109,7 @@ function TeacherDashboard() {
       } />
       <div className="page">
         <div className="page-header animate-fade-in">
-          <h1>Welcome, {teacherName} 👋</h1>
+          <h1>Welcome, {teacherName} <span key={activeTab} className="waving-hand">👋</span></h1>
           <p>Manage your classroom status. Students see these updates in real-time.</p>
         </div>
 

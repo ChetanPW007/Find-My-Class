@@ -48,7 +48,7 @@ function StudentDashboard() {
       <Navbar role="student" />
       <div className="page">
         <div className="student-hero animate-fade-in">
-          <h1>🔍 Find Your Classroom</h1>
+          <h1>🔍 Find Your Classroom <span key={filterType} className="waving-hand">👋</span></h1>
           <p>Search by classroom name, subject, teacher, department, or building</p>
 
           <form onSubmit={handleSearch} className="search-bar student-search">
