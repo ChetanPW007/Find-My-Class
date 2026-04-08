@@ -11,6 +11,7 @@ function StudentDashboard() {
   const [classrooms, setClassrooms] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filterType, setFilterType] = useState('all');
+  const [waveTrigger, setWaveTrigger] = useState(0);
   const [selectedClassroom, setSelectedClassroom] = useState(null);
 
   useEffect(() => {
@@ -48,7 +49,7 @@ function StudentDashboard() {
       <Navbar role="student" />
       <div className="page">
         <div className="student-hero animate-fade-in">
-          <h1>🔍 Find Your Classroom <span key={filterType} className="waving-hand">👋</span></h1>
+          <h1>🔍 Find Your Classroom <span key={waveTrigger} className="waving-hand">👋</span></h1>
           <p>Search by classroom name, subject, teacher, department, or building</p>
 
           <form onSubmit={handleSearch} className="search-bar student-search">
@@ -97,7 +98,10 @@ function StudentDashboard() {
               <button
                 key={f.key}
                 className={`tab ${filterType === f.key ? 'active' : ''}`}
-                onClick={() => setFilterType(f.key)}
+                onClick={() => {
+                  setFilterType(f.key);
+                  setWaveTrigger(prev => prev + 1);
+                }}
               >
                 {f.label}
               </button>

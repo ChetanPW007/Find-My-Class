@@ -14,6 +14,7 @@ import './AdminDashboard.css';
 function AdminDashboard() {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('classrooms');
+  const [waveTrigger, setWaveTrigger] = useState(0);
   const [toast, setToast] = useState(null);
 
   useEffect(() => {
@@ -40,7 +41,7 @@ function AdminDashboard() {
       <Navbar role="admin" name="Administrator" />
       <div className="page">
         <div className="page-header animate-fade-in">
-          <h1>Admin Dashboard <span key={activeTab} className="waving-hand">👋</span></h1>
+          <h1>Admin Dashboard <span key={waveTrigger} className="waving-hand">👋</span></h1>
           <p>Manage classrooms, teachers, departments, timetables, and ML models</p>
         </div>
 
@@ -51,7 +52,10 @@ function AdminDashboard() {
             <button
               key={t.key}
               className={`tab ${activeTab === t.key ? 'active' : ''}`}
-              onClick={() => setActiveTab(t.key)}
+              onClick={() => {
+                setActiveTab(t.key);
+                setWaveTrigger(prev => prev + 1);
+              }}
             >
               {t.label}
             </button>

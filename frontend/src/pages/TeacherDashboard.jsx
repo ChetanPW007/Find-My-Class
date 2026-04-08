@@ -17,9 +17,15 @@ function TeacherDashboard() {
   const [filterStatus, setFilterStatus] = useState('all');
   const [selectedClassroom, setSelectedClassroom] = useState(null);
   const [activeTab, setActiveTab] = useState('dashboard'); // 'dashboard' or 'plagiarism'
+  const [waveTrigger, setWaveTrigger] = useState(0);
 
   const teacherName = localStorage.getItem('name') || 'Teacher';
   const userId = localStorage.getItem('user_id') || '';
+
+  const handleTabChange = (tab) => {
+    setActiveTab(tab);
+    setWaveTrigger(prev => prev + 1);
+  };
 
   useEffect(() => {
     if (!localStorage.getItem('token') || localStorage.getItem('role') !== 'teacher') {
@@ -109,20 +115,20 @@ function TeacherDashboard() {
       } />
       <div className="page">
         <div className="page-header animate-fade-in">
-          <h1>Welcome, {teacherName} <span key={activeTab} className="waving-hand">👋</span></h1>
+          <h1>Welcome, {teacherName} <span key={waveTrigger} className="waving-hand">👋</span></h1>
           <p>Manage your classroom status. Students see these updates in real-time.</p>
         </div>
 
         <div className="tabs" style={{ marginBottom: '24px', width: 'fit-content' }}>
           <button 
             className={`tab ${activeTab === 'dashboard' ? 'active' : ''}`}
-            onClick={() => setActiveTab('dashboard')}
+            onClick={() => handleTabChange('dashboard')}
           >
             🏫 Dashboard
           </button>
           <button 
             className={`tab ${activeTab === 'plagiarism' ? 'active' : ''}`}
-            onClick={() => setActiveTab('plagiarism')}
+            onClick={() => handleTabChange('plagiarism')}
           >
             🔍 Plagiarism Check
           </button>
