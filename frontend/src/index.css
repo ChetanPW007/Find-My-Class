@@ -261,7 +261,7 @@ body {
   .grid-4 { grid-template-columns: repeat(2, 1fr); }
   .grid-3 { grid-template-columns: repeat(2, 1fr); }
 }
-@media (max-width: 640px) {
+@media (max-width: 768px) {
   .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
 }
 
@@ -271,6 +271,12 @@ body {
   padding: 80px 24px 24px;
   max-width: 1400px;
   margin: 0 auto;
+}
+
+@media (max-width: 640px) {
+  .page {
+    padding: 70px 16px 16px;
+  }
 }
 
 .page-header {
@@ -294,6 +300,7 @@ body {
   overflow-x: auto;
   border-radius: var(--radius-md);
   border: 1px solid var(--border);
+  -webkit-overflow-scrolling: touch;
 }
 
 table {

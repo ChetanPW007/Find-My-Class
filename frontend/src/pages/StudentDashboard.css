@@ -86,7 +86,7 @@
 }
 
 @media (max-width: 768px) {
-  .quick-stats { flex-direction: column; align-items: center; }
+  .quick-stats { flex-direction: column; align-items: stretch; }
   .classroom-grid { grid-template-columns: 1fr; }
   .student-search { flex-direction: column; }
   .search-submit { width: 100%; }
