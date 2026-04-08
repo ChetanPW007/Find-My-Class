@@ -57,23 +57,28 @@ def analyze_ai_content(text):
         Text: {text[:4000]} 
         
         Provide a JSON response with:
-        1. ai_percentage (integer 0-100)
-        2. human_percentage (integer 0-100)
-        3. analysis (short string summarizing tone/style)
-        4. sources (list of strings representing likely web sources or 'None')
+        1. ai_percentage (integer 0-100 indicating probability of AI generation)
+        2. human_percentage (integer 0-100 indicating probability of human writing)
+        3. analysis (short string summarizing tone, style, and why it appears AI or human)
+        4. ai_model_prediction (string naming likely model like 'ChatGPT', 'Claude', or 'None')
+        5. web_sources (list of strings representing likely web URLs or domains if it looks copied from internet, or [] if original)
         """
         response = model.generate_content(prompt)
         # Simple extraction of JSON from response text
         match = re.search(r'\{.*\}', response.text, re.DOTALL)
         if match:
             import json
-            return json.loads(match.group())
-        return {"ai_percentage": 0, "human_percentage": 100, "analysis": "Could not parse AI analysis.", "sources": []}
+            data = json.loads(match.group())
+            # Map 'sources' back if the model uses the old name or provide web_sources
+            if "sources" in data and "web_sources" not in data:
+                data["web_sources"] = data["sources"]
+            return data
+        return {"ai_percentage": 0, "human_percentage": 100, "analysis": "Could not parse AI analysis.", "web_sources": [], "ai_model_prediction": "None"}
     except Exception as e:
         print(f"AI Analysis error: {e}")
-        return {"ai_percentage": 0, "human_percentage": 100, "analysis": f"API Error: {str(e)}", "sources": []}
+        return {"ai_percentage": 0, "human_percentage": 100, "analysis": f"API Error: {str(e)}", "web_sources": [], "ai_model_prediction": "None"}
 
-@plagiarism_bp.route('/analyze', methods=['POST'])
+@plagiarism_bp.route('/api/plagiarism/analyze', methods=['POST'])
 def analyze_plagiarism():
     if 'files' not in request.files:
         return jsonify({"error": "No files uploaded"}), 400

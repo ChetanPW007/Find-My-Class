@@ -134,13 +134,16 @@ function PlagiarismChecker() {
               </div>
 
               <div className="pc-analysis-text">
+                <div style={{ marginBottom: '8px', color: 'var(--text-primary)', fontWeight: '700' }}>
+                  🤖 Prediction: {res.ai_analysis.ai_model_prediction || 'Unknown'}
+                </div>
                 <strong>AI Insight:</strong> {res.ai_analysis.analysis}
               </div>
 
-              {res.ai_analysis.sources?.length > 0 && res.ai_analysis.sources[0] !== 'None' && (
+              {res.ai_analysis.web_sources?.length > 0 && res.ai_analysis.web_sources[0] !== 'None' && (
                 <div className="pc-sources">
-                  <h4>Potential Sources</h4>
-                  {res.ai_analysis.sources.map((s, i) => (
+                  <h4>Potential Web / AI Sources</h4>
+                  {res.ai_analysis.web_sources.map((s, i) => (
                     <span key={i} className="pc-source-tag">{s}</span>
                   ))}
                 </div>
@@ -148,7 +151,10 @@ function PlagiarismChecker() {
 
               {res.similarity?.length > 0 && (
                 <div className="pc-similarity-list">
-                  <h4>Cross-Document Similarity</h4>
+                  <h4>Topical & Statement Overlap</h4>
+                  <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginBottom: '8px' }}>
+                    Comparing phrases and statement structure with other uploaded files.
+                  </p>
                   {res.similarity.map((sim, i) => (
                     <div key={i} className="pc-sim-item">
                       <div className="pc-sim-header">
