@@ -1,8 +1,9 @@
 from flask import Blueprint, request, jsonify
 from bson import ObjectId
-from db import classrooms_col
 from routes.auth import token_required, admin_required
 import re
+import datetime
+from db import classrooms_col
 
 classrooms_bp = Blueprint("classrooms", __name__)
 
@@ -12,8 +13,43 @@ def serialize_classroom(c):
     return c
 
 
+def auto_free_classrooms():
+    """Lazily mark classrooms as free if occupied for more than 1 hour"""
+    now = datetime.datetime.now()
+    one_hour_ago = now - datetime.timedelta(hours=1)
+    
+    # Find occupied classrooms with occupied_at before one_hour_ago
+    # Or classrooms that are occupied but don't have occupied_at (legacy or manual start)
+    # If they don't have occupied_at, we can't be sure, but let's assume if we just added the feature,
+    # we only track new ones. Or we can set a default if missing.
+    
+    # Update classrooms where status is 'occupied' and occupied_at < one_hour_ago
+    # Note: we store occupied_at as ISO string or datetime object? Let's use ISO strings for simplicity with JSON, 
+    # but datetime objects are better for MongoDB queries. I'll use datetime objects.
+    
+    query = {
+        "status": "occupied",
+        "occupied_at": {"$lt": one_hour_ago}
+    }
+    
+    update = {
+        "$set": {
+            "status": "free",
+            "current_teacher": "",
+            "current_teacher_id": "",
+            "current_subject": "",
+            "current_semester": "",
+            "current_section": "",
+            "occupied_at": None
+        }
+    }
+    
+    classrooms_col.update_many(query, update)
+
+
 @classrooms_bp.route("/api/classrooms", methods=["GET"])
 def get_classrooms():
+    auto_free_classrooms()
     department = request.args.get("department")
     building = request.args.get("building")
     status = request.args.get("status")
@@ -32,6 +68,7 @@ def get_classrooms():
 
 @classrooms_bp.route("/api/classrooms/search", methods=["GET"])
 def search_classrooms():
+    auto_free_classrooms()
     q = request.args.get("q", "").strip()
     if not q:
         classrooms = list(classrooms_col.find())
@@ -144,6 +181,7 @@ def update_status(id):
             "current_subject": data.get("subject", ""),
             "current_semester": data.get("semester", ""),
             "current_section": data.get("section", ""),
+            "occupied_at": datetime.datetime.now()
         }
     else:
         update = {
@@ -153,6 +191,7 @@ def update_status(id):
             "current_subject": "",
             "current_semester": "",
             "current_section": "",
+            "occupied_at": None
         }
 
     classrooms_col.update_one({"_id": ObjectId(id)}, {"$set": update})

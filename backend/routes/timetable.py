@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify
 from bson import ObjectId
-from db import timetable_col
+from db import timetable_col, classrooms_col
 from routes.auth import token_required, admin_required
 import os
 import datetime
@@ -198,6 +198,39 @@ def schedule_check():
             e["end_time"] = end_t
             e["start_time"] = start_t
             result["ended"].append(e)
+
+    # ─── Manual Occupancy Check (1-hour rule) ──────────────────────────
+    user_id = request.user.get("user_id")
+    if user_id:
+        manual_rooms = list(classrooms_col.find({
+            "current_teacher_id": user_id,
+            "status": "occupied",
+            "occupied_at": {"$ne": None}
+        }))
+
+        for room in manual_rooms:
+            occ_at = room["occupied_at"]
+            # occ_at is a datetime object
+            free_at = occ_at + datetime.timedelta(hours=1)
+            remaining = (free_at - now).total_seconds() / 60
+
+            manual_info = {
+                "id": str(room["_id"]),
+                "classroom": room["name"],
+                "subject": room.get("current_subject", "Manual Session"),
+                "type": "manual",
+                "mins_to_end": round(remaining),
+                "end_time": free_at.strftime("%H:%M"),
+                "day": current_day,
+                "slot": "manual-" + str(room["_id"]) # dummy slot for key tracking
+            }
+
+            if remaining <= 0:
+                result["ended"].append(manual_info)
+            elif remaining <= 10: # 10 min warning as requested
+                result["warning"].append(manual_info)
+            else:
+                result["ongoing"].append(manual_info)
 
     return jsonify(result)
 

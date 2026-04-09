@@ -38,6 +38,16 @@
 .teacher-card.is-occupied {
   opacity: 0.7;
 }
+.active-meta {
+  border-left: 3px solid #10b981;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+  animation: pulse-border 2s infinite;
+}
+@keyframes pulse-border {
+  0% { border-left-color: #10b981; }
+  50% { border-left-color: #34d399; }
+  100% { border-left-color: #10b981; }
+}
 
 .tc-header {
   display: flex;

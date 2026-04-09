@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getClassrooms, updateClassroomStatus } from '../api';
+import { getClassrooms, updateClassroomStatus, getUpcomingClasses } from '../api';
 import Navbar from '../components/Navbar';
 import ClassroomDetailsModal from '../components/ClassroomDetailsModal';
 import ScheduleMonitor from '../components/ScheduleMonitor';
@@ -150,27 +150,13 @@ function TeacherDashboard() {
                 <h2 className="section-title">🟢 Your Active Classes</h2>
                 <div className="teacher-grid">
                   {myClassrooms.map((c) => (
-                    <div key={c._id} className="teacher-card active-class">
-                      <div className="tc-clickable" onClick={() => setSelectedClassroom(c)} title="View Schedule">
-                        <div className="tc-header">
-                          <h3>{c.name}</h3>
-                          <span className="badge badge-occupied">OCCUPIED</span>
-                        </div>
-                        <div className="tc-details">
-                          <div className="tc-detail">📚 {c.current_subject || 'No subject'} {c.current_section && `(Sec: ${c.current_section})`}</div>
-                          <div className="tc-detail">📍 {c.building}, {c.floor} {c.landmark && `— ${c.landmark}`}</div>
-                          <div className="tc-detail">🚪 Room {c.room_number}</div>
-                        </div>
-                      </div>
-                      <button
-                        className="btn btn-danger"
-                        style={{ width: '100%' }}
-                        onClick={() => handleStatusUpdate(c._id, 'end')}
-                        disabled={actionLoading[c._id]}
-                      >
-                        {actionLoading[c._id] ? 'Ending...' : '🛑 End Class'}
-                      </button>
-                    </div>
+                    <ActiveRoomCard 
+                      key={c._id} 
+                      classroom={c} 
+                      onEnd={() => handleStatusUpdate(c._id, 'end')}
+                      onSelect={() => setSelectedClassroom(c)}
+                      loading={actionLoading[c._id]}
+                    />
                   ))}
                 </div>
               </div>
@@ -326,6 +312,75 @@ function StartClassForm({ classroomId, loading, onStart }) {
         </button>
         <button className="btn btn-ghost" onClick={() => setShowForm(false)}>✖</button>
       </div>
+    </div>
+  );
+}
+
+function ActiveRoomCard({ classroom, onEnd, onSelect, loading }) {
+  const [timeLeft, setTimeLeft] = useState('');
+  const [upcoming, setUpcoming] = useState(null);
+
+  useEffect(() => {
+    // Load upcoming info
+    getUpcomingClasses(classroom._id).then(res => {
+      if (res.data && res.data.length > 0) {
+        setUpcoming(res.data.find(u => !u.is_ongoing) || res.data[0]);
+      }
+    }).catch(e => console.warn('Failed to fetch upcoming:', e));
+
+    // Timer for auto-free (1 hour from occupied_at)
+    if (!classroom.occupied_at) return;
+
+    const updateTimer = () => {
+      const occAt = new Date(classroom.occupied_at).getTime();
+      const now = new Date().getTime();
+      const diff = 3600000 - (now - occAt); // 1 hour in ms
+
+      if (diff <= 0) {
+        setTimeLeft('Auto-freeing...');
+      } else {
+        const mins = Math.floor(diff / 60000);
+        const secs = Math.floor((diff % 60000) / 1000);
+        setTimeLeft(`${mins}m ${secs}s`);
+      }
+    };
+
+    updateTimer();
+    const interval = setInterval(updateTimer, 1000);
+    return () => clearInterval(interval);
+  }, [classroom]);
+
+  return (
+    <div className="teacher-card active-class">
+      <div className="tc-clickable" onClick={onSelect} title="View Schedule">
+        <div className="tc-header">
+          <h3>{classroom.name}</h3>
+          <span className="badge badge-occupied">OCCUPIED</span>
+        </div>
+        <div className="tc-details">
+          <div className="tc-detail">📚 {classroom.current_subject || 'No subject'} {classroom.current_section && `(Sec: ${classroom.current_section})`}</div>
+          <div className="tc-detail">📍 {classroom.building}, {classroom.floor}</div>
+          
+          <div className="active-meta" style={{ marginTop: '12px', padding: '10px', background: 'rgba(52, 211, 153, 0.1)', borderRadius: '8px' }}>
+            <div className="tc-detail" style={{ color: '#059669', fontWeight: 'bold' }}>
+              ⏱️ Auto-free in: {timeLeft || '--:--'}
+            </div>
+            {upcoming && (
+              <div className="tc-detail" style={{ fontSize: '0.85rem', marginTop: '4px' }}>
+                ⏭️ Up Next: <b>{upcoming.subject}</b> ({upcoming.time_slot})
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+      <button
+        className="btn btn-danger"
+        style={{ width: '100%', marginTop: '10px' }}
+        onClick={onEnd}
+        disabled={loading}
+      >
+        {loading ? 'Ending...' : '🛑 End Class Now'}
+      </button>
     </div>
   );
 }
