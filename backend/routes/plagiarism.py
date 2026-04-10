@@ -284,4 +284,28 @@ def get_history():
     for r in reports:
         r['_id'] = str(r['_id'])
 
-    return jsonify({"reports": reports})
+@plagiarism_bp.route('/api/plagiarism/health', methods=['GET'])
+def ocr_health():
+    import subprocess
+    tesseract_ok = False
+    poppler_ok = False
+    
+    try:
+        subprocess.run(['tesseract', '--version'], capture_output=True, check=True)
+        tesseract_ok = True
+    except:
+        pass
+        
+    try:
+        subprocess.run(['pdfinfo', '-v'], capture_output=True, check=True)
+        poppler_ok = True
+    except:
+        pass
+        
+    return jsonify({
+        "status": "ok" if tesseract_ok and poppler_ok else "degraded",
+        "tesseract": tesseract_ok,
+        "poppler": poppler_ok,
+        "env": os.name,
+        "tesseract_cmd_set": bool(TESSERACT_CMD)
+    })

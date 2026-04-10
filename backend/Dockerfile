@@ -30,5 +30,5 @@ RUN pip install gunicorn
 # Expose the port the app runs on
 EXPOSE 5000
 
-# Command to run the application
-CMD ["gunicorn", "--bind", "0.0.0.0:5000", "app:app"]
+# Command to run the application using the port assigned by Render
+CMD ["sh", "-c", "gunicorn --bind 0.0.0.0:$PORT app:app"]
