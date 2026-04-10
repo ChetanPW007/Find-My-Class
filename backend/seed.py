@@ -3,7 +3,7 @@ from db import classrooms_col, departments_col, teachers_col, timetable_col, use
 
 
 def seed():
-    print("🌱 Seeding database...")
+    print("[*] Seeding database...")
 
     # Clear existing data
     classrooms_col.delete_many({})
@@ -29,7 +29,7 @@ def seed():
         {"name": "Biotechnology", "building": "Block E", "hod": "Dr. Swathi"},
     ]
     departments_col.insert_many(departments)
-    print(f"  ✅ {len(departments)} departments added")
+    print(f"  [OK] {len(departments)} departments added")
 
     # --- Classrooms ---
     classrooms = [
@@ -47,7 +47,7 @@ def seed():
         {"name": "HOD Chamber - CS", "department": "Computer Science & Engineering", "building": "Block A", "floor": "2nd Floor", "room_number": "A-210", "type": "chamber", "capacity": 5, "status": "free", "current_subject": "", "current_teacher": "", "current_teacher_id": ""},
     ]
     classrooms_col.insert_many(classrooms)
-    print(f"  ✅ {len(classrooms)} classrooms added")
+    print(f"  [OK] {len(classrooms)} classrooms added")
 
     # --- Teachers & Users ---
     teachers_data = [
@@ -74,7 +74,7 @@ def seed():
             "teacher_id": str(result.inserted_id),
         })
 
-    print(f"  ✅ {len(teachers_data)} teachers added")
+    print(f"  [OK] {len(teachers_data)} teachers added")
 
     # Admin user
     users_col.insert_one({
@@ -83,7 +83,7 @@ def seed():
         "role": "admin",
         "name": "Administrator",
     })
-    print("  ✅ Admin user added (admin / admin123)")
+    print("  [OK] Admin user added (admin / admin123)")
 
     # --- Timetable ---
     timetable_entries = [
@@ -107,10 +107,10 @@ def seed():
         {"day": "Friday", "time_slot": "14:00-15:00", "subject": "DBMS Lab", "teacher": "Prof. Sneha Gupta", "classroom": "IT Lab 1", "department": "Information Science & Engineering (ISE)"},
     ]
     timetable_col.insert_many(timetable_entries)
-    print(f"  ✅ {len(timetable_entries)} timetable entries added")
+    print(f"  [OK] {len(timetable_entries)} timetable entries added")
 
-    print("\n🎉 Database seeded successfully!")
-    print("\n📋 Login Credentials:")
+    print("\n[SUCCESS] Database seeded successfully!")
+    print("\n[INFO] Login Credentials:")
     print("  Admin: admin / admin123")
     print("  Teachers: rajesh, priya, amit, sneha, vikram / password123")
 

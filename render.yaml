@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: find-my-class-backend
+    env: docker
+    dockerContext: backend
+    dockerfilePath: backend/Dockerfile
+    plan: free # Change to starter/standard if needed
+    envVars:
+      - key: MONGO_URI
+        sync: false
+      - key: DB_NAME
+        value: find_my_class
+      - key: SECRET_KEY
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false

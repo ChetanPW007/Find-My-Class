@@ -1,7 +1,40 @@
+# Dependencies
+backend/node_modules/
+frontend/node_modules/
+node_modules/
+
+# Python
 backend/__pycache__/
-backend/.env
-backend/logs.txt
-backend/uploads/
+__pycache__/
+*.pyc
 venv/
 .venv/
 env/
+.env
+backend/.env
+frontend/.env
+.python-version
+
+# Build outputs
+frontend/dist/
+frontend/dist-ssr/
+dist/
+
+# Logs and transient files
+backend/logs.txt
+backend/uploads/*
+!backend/uploads/.gitkeep
+logs
+*.log
+npm-debug.log*
+
+# IDEs/Editors
+.vscode/
+.idea/
+.DS_Store
+*.swp
+
+# OS Files
+Thumbs.db
+ehthumbs.db
+desktop.ini

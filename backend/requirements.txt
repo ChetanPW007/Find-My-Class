@@ -13,3 +13,4 @@ pypdf2
 python-docx
 mongomock
 gunicorn
+pdf2image

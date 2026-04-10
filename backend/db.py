@@ -6,7 +6,7 @@ try:
     client = MongoClient(MONGO_URI, serverSelectionTimeoutMS=2000)
     client.admin.command('ping')
 except pymongo.errors.ServerSelectionTimeoutError:
-    print("⚠️ MongoDB not running. Using in-memory Mongomock database!")
+    print("[!] MongoDB not running. Using in-memory Mongomock database!")
     import mongomock
     client = mongomock.MongoClient()
 
