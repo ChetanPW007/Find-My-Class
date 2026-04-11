@@ -26,10 +26,20 @@ def query_hf_api(payload, model_id):
     headers = {"Authorization": f"Bearer {HF_TOKEN}"}
     
     try:
-        response = requests.post(api_url, headers=headers, json=payload, timeout=10)
+        response = requests.post(api_url, headers=headers, json=payload, timeout=20)
+        
+        # Handle Cold Start (Model loading)
+        if response.status_code == 503:
+            logging.warning(f"HF Model {model_id} IS LOADING. Try again in 20s.")
+            return {"error": "Model is loading", "status": 503}
+            
+        if response.status_code != 200:
+            logging.error(f"HF API Error ({model_id}): {response.status_code} - {response.text}")
+            return None
+
         return response.json()
     except Exception as e:
-        logging.error(f"HF API Error ({model_id}): {e}")
+        logging.error(f"HF Network Error ({model_id}): {e}")
         return None
 
 def get_ai_prediction(text):

@@ -103,7 +103,7 @@ def analyze_ai_content(text):
 
     try:
         # ── 1. Get Base Analysis from Gemini ──────────────────────────────
-        model = genai.GenerativeModel('gemini-1.5-flash')
+        model = genai.GenerativeModel('gemini-1.5-flash-latest')
         prompt = f"""Analyze this text for AI patterns and return JSON: {{ai_percentage: number, human_percentage: number, analysis: string, prediction: string}}\n\nTEXT:\n{text[:2000]}"""
         
         response = model.generate_content(prompt)
@@ -116,8 +116,17 @@ def analyze_ai_content(text):
         ml_data = get_ai_prediction(text)
 
         # ── 3. Merge Results ───────────────────────────────────────────────
-        # Use ML confidence as the primary driver if Gemini is vague
-        combined_ai_perc = ml_data["confidence"] if ml_data["confidence"] > 0 else gemini_data.get("ai_percentage", 0)
+        # Priority: HF Forensics (if active) > Gemini (if successful)
+        
+        gemini_perc = gemini_data.get("ai_percentage", 0)
+        ml_confidence = ml_data.get("confidence", 0)
+        
+        # Decide the final "AI Content" percentage
+        # If forensics are active and showing signal, they take priority as they are specialized
+        if ml_confidence > 0:
+            combined_ai_perc = ml_confidence
+        else:
+            combined_ai_perc = gemini_perc
         
         return {
             "ai_percentage": round(combined_ai_perc, 2),
@@ -312,9 +321,12 @@ def ocr_health():
 @plagiarism_bp.route('/api/plagiarism/forensic-status', methods=['GET'])
 def forensic_status():
     from ml.ai_detector import HF_TOKEN, USE_HF_API
+    from routes.plagiarism import api_key as gemini_key
+    
     return jsonify({
         "forensic_active": bool(HF_TOKEN and USE_HF_API),
+        "gemini_active": bool(gemini_key),
         "api_configured": bool(HF_TOKEN),
-        "provider": "Hugging Face (RoBERTa/GPT2)" if HF_TOKEN else "Basic Lexical Patterns",
+        "provider": "Hugging Face (RoBERTa) + Gemini" if HF_TOKEN else "Gemini (Backup Mode)",
         "deep_analysis_ready": True
     })
