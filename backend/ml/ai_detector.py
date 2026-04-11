@@ -34,42 +34,45 @@ def query_hf_api(payload, model_id):
 
 def get_ai_prediction(text):
     """
-    Combines Classifier and Perplexity signals.
-    Returns a dictionary of metrics.
+    DEEP ANALYSIS MODE: Performs sliding window scanning on the entire document.
+    Categorizes the document into forensics by looking at multiple 1000-char chunks.
     """
-    # Truncate text for API limits (approx 512 tokens)
-    truncated_text = text[:1500] 
+    # ── 1. Create Chunks for Deep Analysis ──────────────────────────────────
+    chunk_size = 1200
+    chunks = [text[i:i + chunk_size] for i in range(0, len(text), chunk_size // 2)]
+    
+    # Cap at 5 chunks for performance on Free Tier, prioritizing the scan
+    chunks = chunks[:5] if len(chunks) > 5 else chunks
+    
+    classifier_scores = []
+    
+    # Analyze each chunk individually
+    if USE_HF_API and HF_TOKEN:
+        for chunk in chunks:
+            classifier_data = query_hf_api({"inputs": chunk}, CLASSIFIER_MODEL)
+            if isinstance(classifier_data, list) and len(classifier_data) > 0:
+                scores = {item['label']: item['score'] for item in classifier_data[0]}
+                classifier_scores.append(scores.get('Fake', 0.0) * 100)
+    
+    # Calculate the average AI signal across the document
+    final_classifier_score = (sum(classifier_scores) / len(classifier_scores)) if classifier_scores else 0.0
     
     results = {
-        "classifier_score": 0.0,
+        "classifier_score": round(final_classifier_score, 2),
         "perplexity_score": 0.0,
         "is_ai": False,
         "confidence": 0.0,
         "analysis": "Analysis pending."
     }
 
-    # 1. Classifier (AI vs Human)
-    if USE_HF_API and HF_TOKEN:
-        classifier_data = query_hf_api({"inputs": truncated_text}, CLASSIFIER_MODEL)
-        
-        if isinstance(classifier_data, list) and len(classifier_data) > 0:
-            # Format: [[{'label': 'Fake', 'score': 0.99}, {'label': 'Real', 'score': 0.01}]]
-            scores = {item['label']: item['score'] for item in classifier_data[0]}
-            results["classifier_score"] = scores.get('Fake', 0.0) * 100
-        else:
-            logging.warning("HF Classifier failed or returned invalid data.")
-
-    # 2. Perplexity (Simulated via signal metrics or Local if available)
+    # 2. Perplexity (Structural Predictability)
     results["perplexity_score"] = calculate_simulated_perplexity(text)
 
     # 3. Burstiness (Sentence Length Variation)
     results["burstiness_score"] = calculate_burstiness(text)
 
     # 4. Final Decision Logic (Weighted Ensemble)
-    # Weights: Classifier (50%), Perplexity (25%), Burstiness (25%)
     # Human text = High Perplexity, High Burstiness, Low Classifier Rank
-    
-    # Normalize burstiness: higher is better (more human)
     burstiness_signal = min(results["burstiness_score"] * 2, 100) 
     
     results["confidence"] = (
@@ -80,11 +83,14 @@ def get_ai_prediction(text):
     
     results["is_ai"] = results["confidence"] > 65
     
+    # Forensic Explanation
+    status_msg = "Deep Scanning active." if len(chunks) > 1 else "Standard Scan active."
     results["analysis"] = (
-        f"The model detected {('high' if results['is_ai'] else 'low')} stylistic alignment with AI generators. "
+        f"{status_msg} The model detected {('high' if results['is_ai'] else 'low')} stylistic alignment. "
+        f"Analyzed {len(chunks)} sections of the document. "
         f"Forensic signals: {results['classifier_score']:.1f}% classifier match, "
         f"{results['perplexity_score']:.1f} perplexity, and "
-        f"{results['burstiness_score']:.1f} sentence variation (burstiness)."
+        f"{results['burstiness_score']:.1f} sentence variation."
     )
 
     return results

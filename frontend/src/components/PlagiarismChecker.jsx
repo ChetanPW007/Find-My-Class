@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { analyzePlagiarism, getPlagiarismHistory, savePlagiarismReport } from '../api';
+import { analyzePlagiarism, getPlagiarismHistory, savePlagiarismReport, getForensicStatus } from '../api';
 import './PlagiarismChecker.css';
 
 function PlagiarismChecker() {
@@ -15,9 +15,23 @@ function PlagiarismChecker() {
   const [history, setHistory] = useState([]);
   const [historyLoading, setHistoryLoading] = useState(false);
   const [viewHistoryItem, setViewHistoryItem] = useState(null);
+  const [forensicStatus, setForensicStatus] = useState({ forensic_active: false, provider: 'Loading...' });
   
   const fileInputRef = useRef(null);
   const teacherId = localStorage.getItem('user_id');
+
+  useEffect(() => {
+    fetchStatus();
+  }, []);
+
+  const fetchStatus = async () => {
+    try {
+      const res = await getForensicStatus();
+      setForensicStatus(res.data);
+    } catch (err) {
+      console.error('Status fetch error:', err);
+    }
+  };
 
   useEffect(() => {
     if (activeSubTab === 'history') {
@@ -100,6 +114,17 @@ function PlagiarismChecker() {
 
     return (
       <>
+        <div className={`pc-forensic-status-bar ${forensicStatus.forensic_active ? 'active' : 'inactive'}`}>
+          <div className="pc-fs-icon">{forensicStatus.forensic_active ? '🛡️' : '⚠️'}</div>
+          <div className="pc-fs-text">
+            <strong>Forensic Intelligence: {forensicStatus.forensic_active ? 'Fully Active' : 'Basic Mode'}</strong>
+            <span>Provider: {forensicStatus.provider} | Analysis: {forensicStatus.deep_analysis_ready ? 'Deep Sliding Window' : 'Standard'}</span>
+          </div>
+          {!forensicStatus.forensic_active && (
+            <div className="pc-fs-hint">Tip: Set HF_TOKEN in environment for professional detection.</div>
+          )}
+        </div>
+
         <div className="pc-total-stats animate-fade-in">
           <div className="pc-total-card">
             <span className="pc-total-val">{data.length}</span>

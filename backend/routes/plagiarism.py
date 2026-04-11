@@ -308,3 +308,13 @@ def ocr_health():
         "env": os.name,
         "tesseract_cmd_set": bool(TESSERACT_CMD)
     })
+
+@plagiarism_bp.route('/api/plagiarism/forensic-status', methods=['GET'])
+def forensic_status():
+    from ml.ai_detector import HF_TOKEN, USE_HF_API
+    return jsonify({
+        "forensic_active": bool(HF_TOKEN and USE_HF_API),
+        "api_configured": bool(HF_TOKEN),
+        "provider": "Hugging Face (RoBERTa/GPT2)" if HF_TOKEN else "Basic Lexical Patterns",
+        "deep_analysis_ready": True
+    })

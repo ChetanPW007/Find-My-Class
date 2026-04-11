@@ -84,5 +84,7 @@ export const getPlagiarismHistory = (teacherId) =>
   api.get(`/plagiarism/history`, { params: { teacher_id: teacherId } });
 export const savePlagiarismReport = (data) =>
   api.post('/plagiarism/save', data);
+export const getForensicStatus = () =>
+  api.get('/plagiarism/forensic-status');
 
 export default api;

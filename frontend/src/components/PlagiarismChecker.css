@@ -333,6 +333,45 @@
   text-align: right;
 }
 
+/* Forensic Status Bar */
+.pc-forensic-status-bar {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 20px;
+  border-radius: var(--radius-md);
+  margin-bottom: 24px;
+  border: 1px solid var(--border);
+  position: relative;
+  overflow: hidden;
+  background: var(--bg-surface);
+}
+
+.pc-forensic-status-bar.active {
+  border-left: 4px solid var(--success);
+  background: rgba(0, 255, 128, 0.05);
+}
+
+.pc-forensic-status-bar.inactive {
+  border-left: 4px solid var(--warning);
+  background: rgba(255, 165, 0, 0.05);
+}
+
+.pc-fs-icon { font-size: 1.5rem; }
+
+.pc-fs-text { display: flex; flex-direction: column; gap: 2px; }
+.pc-fs-text strong { font-size: 0.95rem; color: var(--text-primary); }
+.pc-fs-text span { font-size: 0.75rem; color: var(--text-muted); }
+
+.pc-fs-hint {
+  margin-left: auto;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--warning);
+  max-width: 200px;
+  text-align: right;
+}
+
 /* Modal Styles */
 .modal-overlay {
   position: fixed;
