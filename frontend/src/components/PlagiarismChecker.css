@@ -288,6 +288,51 @@
   white-space: nowrap;
 }
 
+/* Forensic Metrics */
+.pc-forensic-metrics {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+}
+
+.pc-metric {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.pc-m-label {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  width: 120px;
+  flex-shrink: 0;
+}
+
+.pc-m-bar-bg {
+  flex: 1;
+  height: 6px;
+  background: var(--bg-surface-light);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.pc-m-bar {
+  height: 100%;
+  transition: width 1s cubic-bezier(0.1, 0, 0, 1);
+}
+
+.pc-m-val {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  width: 40px;
+  text-align: right;
+}
+
 /* Modal Styles */
 .modal-overlay {
   position: fixed;

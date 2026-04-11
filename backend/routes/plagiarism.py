@@ -13,6 +13,7 @@ import google.generativeai as genai
 from dotenv import load_dotenv
 from db import plagiarism_reports_col
 from config import TESSERACT_CMD
+from ml.ai_detector import get_ai_prediction, get_sentence_similarity
 
 #  OCR IMPORTS (NEW)
 import pytesseract
@@ -101,42 +102,31 @@ def analyze_ai_content(text):
         }
 
     try:
+        # ── 1. Get Base Analysis from Gemini ──────────────────────────────
         model = genai.GenerativeModel('gemini-1.5-flash')
-
-        prompt = f"""
-        Analyze the following text for AI generation and plagiarism patterns:
-
-        TEXT:
-        {text[:4000]}
-
-        Return JSON:
-        {{
-            "ai_percentage": number,
-            "human_percentage": number,
-            "analysis": "short explanation",
-            "ai_model_prediction": "model name or None",
-            "web_sources": []
-        }}
-        """
-
+        prompt = f"""Analyze this text for AI patterns and return JSON: {{ai_percentage: number, human_percentage: number, analysis: string, prediction: string}}\n\nTEXT:\n{text[:2000]}"""
+        
         response = model.generate_content(prompt)
-        clean_text = response.text
-
-        # Clean JSON
-        match = re.search(r'\{.*\}', clean_text, re.DOTALL)
+        gemini_data = {}
+        match = re.search(r'\{.*\}', response.text, re.DOTALL)
         if match:
-            data = json.loads(match.group())
+            gemini_data = json.loads(match.group())
 
-            if "ai_percentage" in data:
-                data["human_percentage"] = 100 - data["ai_percentage"]
+        # ── 2. Get Granular ML Metrics (RoBERTa + GPT2) ─────────────────────
+        ml_data = get_ai_prediction(text)
 
-            return data
-
+        # ── 3. Merge Results ───────────────────────────────────────────────
+        # Use ML confidence as the primary driver if Gemini is vague
+        combined_ai_perc = ml_data["confidence"] if ml_data["confidence"] > 0 else gemini_data.get("ai_percentage", 0)
+        
         return {
-            "ai_percentage": 0,
-            "human_percentage": 100,
-            "analysis": "Parsing failed",
-            "ai_model_prediction": "Unknown",
+            "ai_percentage": round(combined_ai_perc, 2),
+            "human_percentage": round(100 - combined_ai_perc, 2),
+            "perplexity_score": round(ml_data["perplexity_score"], 2),
+            "classifier_score": round(ml_data["classifier_score"], 2),
+            "burstiness_score": round(ml_data.get("burstiness_score", 0), 2),
+            "analysis": ml_data["analysis"],
+            "ai_model_prediction": gemini_data.get("prediction", "Hybrid ML Model"),
             "web_sources": []
         }
 
@@ -207,7 +197,6 @@ def analyze_plagiarism():
 
             vectorizer = TfidfVectorizer(stop_words='english')
             vectors = vectorizer.fit_transform(corpus)
-
             cosine_matrix = cosine_similarity(vectors)
 
             for i, doc in enumerate(documents):
@@ -215,9 +204,17 @@ def analyze_plagiarism():
 
                 for j, score in enumerate(cosine_matrix[i]):
                     if i != j:
+                        # ── Refined Semantic Scan ──
+                        # If TF-IDF detects > 10% similarity, refine with SBERT for precision
+                        final_score = score * 100
+                        if final_score > 10:
+                            semantic_score = get_sentence_similarity(documents[i]['text'], documents[j]['text'])
+                            if semantic_score > 0:
+                                final_score = (final_score + semantic_score) / 2
+
                         similar_to.append({
                             "filename": documents[j]['filename'],
-                            "percentage": round(score * 100, 2)
+                            "percentage": round(final_score, 2)
                         })
 
                 doc['similarity'] = sorted(

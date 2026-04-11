@@ -142,6 +142,40 @@ function PlagiarismChecker() {
                 </div>
               </div>
 
+              {/* Advanced Forensic Metrics */}
+              <div className="pc-forensic-metrics">
+                <div className="pc-metric">
+                  <span className="pc-m-label">Perplexity (GPT-2)</span>
+                  <div className="pc-m-bar-bg">
+                    <div className="pc-m-bar" style={{ 
+                      width: `${res.ai_analysis.perplexity_score}%`,
+                      background: res.ai_analysis.perplexity_score < 40 ? 'var(--danger)' : 'var(--accent)'
+                    }}></div>
+                  </div>
+                  <span className="pc-m-val">{res.ai_analysis.perplexity_score}%</span>
+                </div>
+                <div className="pc-metric">
+                  <span className="pc-m-label">AI Classifier (RoBERTa)</span>
+                  <div className="pc-m-bar-bg">
+                    <div className="pc-m-bar" style={{ 
+                      width: `${res.ai_analysis.classifier_score}%`,
+                      background: res.ai_analysis.classifier_score > 60 ? 'var(--danger)' : 'var(--success)'
+                    }}></div>
+                  </div>
+                  <span className="pc-m-val">{res.ai_analysis.classifier_score}%</span>
+                </div>
+                <div className="pc-metric">
+                  <span className="pc-m-label">Burstiness (Variation)</span>
+                  <div className="pc-m-bar-bg">
+                    <div className="pc-m-bar" style={{ 
+                      width: `${res.ai_analysis.burstiness_score}%`,
+                      background: res.ai_analysis.burstiness_score < 30 ? 'var(--danger)' : 'var(--success)'
+                    }}></div>
+                  </div>
+                  <span className="pc-m-val">{res.ai_analysis.burstiness_score}%</span>
+                </div>
+              </div>
+
               <div className="pc-analysis-text">
                 <div style={{ marginBottom: '8px', color: 'var(--text-primary)', fontWeight: '700' }}>
                   🤖 Prediction: {res.ai_analysis.ai_model_prediction || 'Unknown'}

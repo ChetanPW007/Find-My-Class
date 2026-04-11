@@ -14,3 +14,6 @@ python-docx
 mongomock
 gunicorn
 pdf2image
+transformers
+torch
+requests
