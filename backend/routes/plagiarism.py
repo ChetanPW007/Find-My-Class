@@ -284,6 +284,8 @@ def get_history():
     for r in reports:
         r['_id'] = str(r['_id'])
 
+    return jsonify(reports)
+
 @plagiarism_bp.route('/api/plagiarism/health', methods=['GET'])
 def ocr_health():
     import subprocess
