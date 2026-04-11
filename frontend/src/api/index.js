@@ -75,4 +75,14 @@ export const predictOccupancy = (data) => api.post('/predict', data);
 export const trainModel = () => api.post('/predict/train');
 export const getPredictStats = () => api.get('/predict/stats');
 
+// Plagiarism
+export const analyzePlagiarism = (formData) =>
+  api.post('/plagiarism/analyze', formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  });
+export const getPlagiarismHistory = (teacherId) =>
+  api.get(`/plagiarism/history`, { params: { teacher_id: teacherId } });
+export const savePlagiarismReport = (data) =>
+  api.post('/plagiarism/save', data);
+
 export default api;

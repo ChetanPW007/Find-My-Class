@@ -1,8 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
-import axios from 'axios';
+import { analyzePlagiarism, getPlagiarismHistory, savePlagiarismReport } from '../api';
 import './PlagiarismChecker.css';
-
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
 function PlagiarismChecker() {
   const [activeSubTab, setActiveSubTab] = useState('new'); // 'new' or 'history'
@@ -30,8 +28,8 @@ function PlagiarismChecker() {
   const loadHistory = async () => {
     setHistoryLoading(true);
     try {
-      const res = await axios.get(`${API_BASE_URL}/plagiarism/history?teacher_id=${teacherId}`);
-      setHistory(res.data.reports || []);
+      const res = await getPlagiarismHistory(teacherId);
+      setHistory(res.data || []);
     } catch (err) {
       console.error('History load error:', err);
     }
@@ -64,9 +62,7 @@ function PlagiarismChecker() {
     files.forEach(file => formData.append('files', file));
 
     try {
-      const res = await axios.post(`${API_BASE_URL}/plagiarism/analyze`, formData, {
-        headers: { 'Content-Type': 'multipart/form-data' }
-      });
+      const res = await analyzePlagiarism(formData);
       setResults(res.data.results);
     } catch (err) {
       setError(err.response?.data?.error || 'Analysis failed. Make sure documents have readable text.');
@@ -78,7 +74,7 @@ function PlagiarismChecker() {
   const handleSaveToHistory = async () => {
     setSaving(true);
     try {
-      await axios.post(`${API_BASE_URL}/plagiarism/save`, {
+      await savePlagiarismReport({
         ...saveMetadata,
         results,
         teacher_id: teacherId
