@@ -12,7 +12,7 @@ from routes.notifications import notifications_bp
 from routes.plagiarism import plagiarism_bp
 
 app = Flask(__name__)
-CORS(app)
+CORS(app, resources={r"/api/*": {"origins": ["http://localhost:5173", "https://find-my-class.vercel.app"]}})
 
 # Register blueprints
 app.register_blueprint(auth_bp)

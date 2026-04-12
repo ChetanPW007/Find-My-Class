@@ -22,7 +22,7 @@ def query_hf_api(payload, model_id):
         logging.warning("HF_TOKEN missing. Skipping HF API query.")
         return None
     
-    api_url = f"https://api-inference.huggingface.co/models/{model_id}"
+    api_url = f"https://router.huggingface.co/models/{model_id}"
     headers = {"Authorization": f"Bearer {HF_TOKEN}"}
     
     try:

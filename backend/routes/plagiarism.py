@@ -102,8 +102,18 @@ def analyze_ai_content(text):
         }
 
     try:
-        # ── 1. Get Base Analysis from Gemini ──────────────────────────────
-        model = genai.GenerativeModel('gemini-1.5-flash-latest')
+        # ── 1. Discover Working Model ────────────────────────────────────
+        available_models = [m.name for m in genai.list_models() if 'generateContent' in m.supported_generation_methods]
+        
+        # Priority: flash-latest -> flash -> pro
+        target_model = 'gemini-1.5-flash-latest'
+        if 'models/gemini-1.5-flash-latest' not in available_models:
+            if 'models/gemini-1.5-flash' in available_models:
+                target_model = 'gemini-1.5-flash'
+            elif 'models/gemini-pro' in available_models:
+                target_model = 'gemini-pro'
+        
+        model = genai.GenerativeModel(target_model)
         prompt = f"""Analyze this text for AI patterns and return JSON: {{ai_percentage: number, human_percentage: number, analysis: string, prediction: string}}\n\nTEXT:\n{text[:2000]}"""
         
         response = model.generate_content(prompt)
