@@ -62,16 +62,20 @@ def get_ai_prediction(text):
             classifier_data = query_hf_api({"inputs": chunk}, CLASSIFIER_MODEL)
             if isinstance(classifier_data, list) and len(classifier_data) > 0:
                 # ── 1. Robust Label Mapping ───────────────────────────────────
-                # RoBERTa labels: LABEL_0 (Human), LABEL_1 (AI)
-                # Some versions use: Real/Fake
+                # IMPORTANT: For roberta-base-openai-detector:
+                # LABEL_0 = Fake (AI), LABEL_1 = Real (Human)
                 scores = {str(item['label']).upper(): item['score'] for item in classifier_data[0]}
                 
-                # AI Signal is usually LABEL_1 or FAKE
+                # AI Signal is LABEL_0 or FAKE
                 ai_signal = max(
-                    scores.get('LABEL_1', 0.0),
+                    scores.get('LABEL_0', 0.0),
                     scores.get('FAKE', 0.0),
                     scores.get('AI', 0.0)
                 )
+                
+                # Debug log for Render console
+                logging.info(f"Forensic Raw Signal: AI={ai_signal:.2f} | Full: {scores}")
+                
                 classifier_scores.append(ai_signal * 100)
             elif isinstance(classifier_data, dict) and classifier_data.get("status") == 503:
                 results["model_loading"] = True
