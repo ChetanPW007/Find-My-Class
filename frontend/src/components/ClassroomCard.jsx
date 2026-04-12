@@ -1,6 +1,6 @@
 import './ClassroomCard.css';
 
-function ClassroomCard({ classroom, onClick, delay = 0 }) {
+function ClassroomCard({ classroom, onClick, delay = 0, isFavorite = false }) {
   const c = classroom;
   const isOccupied = c.status === 'occupied';
   const typeIcon = {
@@ -24,6 +24,7 @@ function ClassroomCard({ classroom, onClick, delay = 0 }) {
           <span className={`status-dot ${c.status}`}></span>
           {isOccupied ? 'Occupied' : 'Free'}
         </span>
+        {isFavorite && <span className="cc-fav-badge" title="Favorited Class">⭐</span>}
       </div>
 
       <h3 className="cc-name">{c.name}</h3>

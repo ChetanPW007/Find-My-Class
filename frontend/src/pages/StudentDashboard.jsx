@@ -15,17 +15,38 @@ function StudentDashboard() {
   const [waveTrigger, setWaveTrigger] = useState(0);
   const [selectedClassroom, setSelectedClassroom] = useState(null);
   const [showProfile, setShowProfile] = useState(false);
+  const [favorites, setFavorites] = useState([]);
+
 
   useEffect(() => {
     loadClassrooms();
+    fetchFavorites();
+    
     const handleOpenProfile = () => setShowProfile(true);
+    const handleFavUpdate = () => fetchFavorites();
+    
     document.addEventListener('open-profile', handleOpenProfile);
+    document.addEventListener('favorites-updated', handleFavUpdate);
     
     // Subscribe to Push Notifications
     subscribeToPush();
-
-    return () => document.removeEventListener('open-profile', handleOpenProfile);
+    
+    return () => {
+      document.removeEventListener('open-profile', handleOpenProfile);
+      document.removeEventListener('favorites-updated', handleFavUpdate);
+    };
   }, []);
+
+  const fetchFavorites = async () => {
+    try {
+      const res = await fetch('http://localhost:5000/api/students/profile', {
+        headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+      });
+      const data = await res.json();
+      if (data.favorites) setFavorites(data.favorites);
+    } catch(e) {}
+  };
+
 
   const subscribeToPush = async () => {
     if ('serviceWorker' in navigator && 'PushManager' in window && localStorage.getItem('role') === 'student') {
@@ -89,6 +110,19 @@ function StudentDashboard() {
 
   const freeCount = classrooms.filter((c) => c.status === 'free').length;
   const occupiedCount = classrooms.filter((c) => c.status === 'occupied').length;
+
+  // Sorting: Favorites first, then by status (free first), then by name
+  const sortedClassrooms = [...filteredClassrooms].sort((a, b) => {
+    const aFav = favorites.includes(a._id);
+    const bFav = favorites.includes(b._id);
+    if (aFav && !bFav) return -1;
+    if (!aFav && bFav) return 1;
+    
+    // Fallback sorting
+    if (a.status !== b.status) return a.status === 'free' ? -1 : 1;
+    return a.name.localeCompare(b.name);
+  });
+
 
   return (
     <div className="student-page">
@@ -169,12 +203,13 @@ function StudentDashboard() {
           </div>
         ) : (
           <div className="classroom-grid">
-            {filteredClassrooms.map((c, i) => (
+            {sortedClassrooms.map((c, i) => (
               <ClassroomCard 
                 key={c._id} 
                 classroom={c} 
                 delay={i * 0.05} 
-                onClick={setSelectedClassroom} 
+                onClick={setSelectedClassroom}
+                isFavorite={favorites.includes(c._id)}
               />
             ))}
           </div>

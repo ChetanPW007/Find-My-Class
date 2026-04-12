@@ -89,6 +89,8 @@ function ClassroomDetailsModal({ classroom, onClose, role, onStartClass, loading
                       headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
                     });
                     setIsFavorite(!isFavorite);
+                    // Notify dashboard to re-sort
+                    document.dispatchEvent(new CustomEvent('favorites-updated'));
                   } catch(e) {}
                   setFavLoading(false);
                 }}
