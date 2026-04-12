@@ -102,28 +102,39 @@ def analyze_ai_content(text):
         }
 
     try:
-        # ── 1. Discover Working Model ────────────────────────────────────
-        available_models = [m.name for m in genai.list_models() if 'generateContent' in m.supported_generation_methods]
-        
-        # Priority: flash-latest -> flash -> pro
-        target_model = 'gemini-1.5-flash-latest'
-        if 'models/gemini-1.5-flash-latest' not in available_models:
-            if 'models/gemini-1.5-flash' in available_models:
-                target_model = 'gemini-1.5-flash'
-            elif 'models/gemini-pro' in available_models:
-                target_model = 'gemini-pro'
-        
-        model = genai.GenerativeModel(target_model)
-        prompt = f"""Analyze this text for AI patterns and return JSON: {{ai_percentage: number, human_percentage: number, analysis: string, prediction: string}}\n\nTEXT:\n{text[:2000]}"""
-        
-        response = model.generate_content(prompt)
         gemini_data = {}
-        match = re.search(r'\{.*\}', response.text, re.DOTALL)
-        if match:
-            gemini_data = json.loads(match.group())
+        try:
+            # ── 1. Discover Working Model ────────────────────────────────────
+            available_models = [m.name for m in genai.list_models() if 'generateContent' in m.supported_generation_methods]
+            
+            # Priority: flash-latest -> flash -> pro
+            target_model = 'gemini-1.5-flash-latest'
+            if 'models/gemini-1.5-flash-latest' not in available_models:
+                if 'models/gemini-1.5-flash' in available_models:
+                    target_model = 'gemini-1.5-flash'
+                elif 'models/gemini-pro' in available_models:
+                    target_model = 'gemini-pro'
+            
+            model = genai.GenerativeModel(target_model)
+            prompt = f"""Analyze this text for AI patterns and return JSON: {{ai_percentage: number, human_percentage: number, analysis: string, prediction: string}}\n\nTEXT:\n{text[:2000]}"""
+            
+            response = model.generate_content(prompt)
+            match = re.search(r'\{.*\}', response.text, re.DOTALL)
+            if match:
+                gemini_data = json.loads(match.group())
+        except Exception as e:
+            print("Gemini API error:", e)
 
         # ── 2. Get Granular ML Metrics (RoBERTa + GPT2) ─────────────────────
-        ml_data = get_ai_prediction(text)
+        try:
+            ml_data = get_ai_prediction(text)
+        except Exception as e:
+            print("HF ML error:", e)
+            ml_data = {
+                "confidence": 0, "perplexity_score": 0, 
+                "classifier_score": 0, "burstiness_score": 0, 
+                "analysis": "Forensic Analysis Unavailable."
+            }
 
         # ── 3. Merge Results ───────────────────────────────────────────────
         # Priority: HF Forensics (if active) > Gemini (if successful)
@@ -132,29 +143,32 @@ def analyze_ai_content(text):
         ml_confidence = ml_data.get("confidence", 0)
         
         # Decide the final "AI Content" percentage
-        # If forensics are active and showing signal, they take priority as they are specialized
         if ml_confidence > 0:
             combined_ai_perc = ml_confidence
         else:
             combined_ai_perc = gemini_perc
+            
+        analysis_text = ml_data.get("analysis", "")
+        if not analysis_text or "Unavailable" in analysis_text:
+            analysis_text = gemini_data.get("analysis", "Analysis completed with backup model.")
         
         return {
             "ai_percentage": round(combined_ai_perc, 2),
             "human_percentage": round(100 - combined_ai_perc, 2),
-            "perplexity_score": round(ml_data["perplexity_score"], 2),
-            "classifier_score": round(ml_data["classifier_score"], 2),
+            "perplexity_score": round(ml_data.get("perplexity_score", 0), 2),
+            "classifier_score": round(ml_data.get("classifier_score", 0), 2),
             "burstiness_score": round(ml_data.get("burstiness_score", 0), 2),
-            "analysis": ml_data["analysis"],
+            "analysis": analysis_text,
             "ai_model_prediction": gemini_data.get("prediction", "Hybrid ML Model"),
             "web_sources": []
         }
 
     except Exception as e:
-        print("AI error:", e)
+        print("General AI error:", e)
         return {
             "ai_percentage": 0,
             "human_percentage": 100,
-            "analysis": f"Error: {str(e)}",
+            "analysis": f"Error during analysis: {str(e)}",
             "ai_model_prediction": "Error",
             "web_sources": []
         }
