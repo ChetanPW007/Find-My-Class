@@ -27,6 +27,7 @@ function TeacherDashboard() {
     setWaveTrigger(prev => prev + 1);
   };
 
+  useEffect(() => {
     if (!localStorage.getItem('token') || localStorage.getItem('role') !== 'teacher') {
       navigate('/teacher/login');
       return;
