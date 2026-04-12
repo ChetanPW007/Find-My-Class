@@ -61,11 +61,24 @@ def get_ai_prediction(text):
         for chunk in chunks:
             classifier_data = query_hf_api({"inputs": chunk}, CLASSIFIER_MODEL)
             if isinstance(classifier_data, list) and len(classifier_data) > 0:
-                scores = {item['label']: item['score'] for item in classifier_data[0]}
-                classifier_scores.append(scores.get('Fake', 0.0) * 100)
+                # ── 1. Robust Label Mapping ───────────────────────────────────
+                # RoBERTa labels: LABEL_0 (Human), LABEL_1 (AI)
+                # Some versions use: Real/Fake
+                scores = {str(item['label']).upper(): item['score'] for item in classifier_data[0]}
+                
+                # AI Signal is usually LABEL_1 or FAKE
+                ai_signal = max(
+                    scores.get('LABEL_1', 0.0),
+                    scores.get('FAKE', 0.0),
+                    scores.get('AI', 0.0)
+                )
+                classifier_scores.append(ai_signal * 100)
+            elif isinstance(classifier_data, dict) and classifier_data.get("status") == 503:
+                results["model_loading"] = True
     
-    # Calculate the average AI signal across the document
-    final_classifier_score = (sum(classifier_scores) / len(classifier_scores)) if classifier_scores else 0.0
+    # PEAK SIGNAL: We use the maximum AI signal found in any chunk
+    # This catches "mixed" documents where only one section is AI-generated
+    final_classifier_score = max(classifier_scores) if classifier_scores else 0.0
     
     results = {
         "classifier_score": round(final_classifier_score, 2),
@@ -94,13 +107,16 @@ def get_ai_prediction(text):
     results["is_ai"] = results["confidence"] > 65
     
     # Forensic Explanation
-    status_msg = "Deep Scanning active." if len(chunks) > 1 else "Standard Scan active."
+    status_msg = "Deep Scan Active." if len(chunks) > 1 else "Standard Scan."
+    if results.get("model_loading"):
+        status_msg += " (⚠️ Forensic Engines Warming Up...)"
+        
     results["analysis"] = (
         f"{status_msg} The model detected {('high' if results['is_ai'] else 'low')} stylistic alignment. "
-        f"Analyzed {len(chunks)} sections of the document. "
-        f"Forensic signals: {results['classifier_score']:.1f}% classifier match, "
+        f"Analyzed {len(chunks)} sections using Peak Signal Intelligence. "
+        f"Forensic signals: {results['classifier_score']:.1f}% classifier peak, "
         f"{results['perplexity_score']:.1f} perplexity, and "
-        f"{results['burstiness_score']:.1f} sentence variation."
+        f"{results['burstiness_score']:.1f} variation."
     )
 
     return results
