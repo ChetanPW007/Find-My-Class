@@ -8,6 +8,9 @@ function ClassroomDetailsModal({ classroom, onClose, role, onStartClass, loading
   const [subject, setSubject] = useState('');
   const [semester, setSemester] = useState('1');
   const [section, setSection] = useState('');
+  const [isFavorite, setIsFavorite] = useState(false);
+  const [favLoading, setFavLoading] = useState(false);
+  const [isAnimating, setIsAnimating] = useState(false);
   const c = classroom;
   const isOccupied = c.status === 'occupied';
 
@@ -27,6 +30,21 @@ function ClassroomDetailsModal({ classroom, onClose, role, onStartClass, loading
       setLoading(false);
     };
     fetchUpcoming();
+
+    if (role === 'student') {
+      const fetchFav = async () => {
+        try {
+          const res = await fetch('http://localhost:5000/api/students/profile', {
+            headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+          });
+          const data = await res.json();
+          if (data && data.favorites) {
+            setIsFavorite(data.favorites.includes(c._id));
+          }
+        } catch(e) {}
+      }
+      fetchFav();
+    }
 
     // Re-enable body scroll on unmount
     return () => {
@@ -57,6 +75,29 @@ function ClassroomDetailsModal({ classroom, onClose, role, onStartClass, loading
               {isOccupied ? 'Currently Occupied' : 'Currently Free'}
             </span>
             <span className="cd-type-badge">{typeIcon} {c.type}</span>
+            {role === 'student' && (
+              <button 
+                className={`cd-fav-star ${isFavorite ? 'active' : ''} ${isAnimating ? 'animating' : ''}`}
+                onClick={async (e) => {
+                  e.stopPropagation();
+                  setFavLoading(true);
+                  setIsAnimating(true);
+                  setTimeout(() => setIsAnimating(false), 500);
+                  try {
+                    await fetch(`http://localhost:5000/api/students/favorites/${c._id}`, {
+                      method: isFavorite ? 'DELETE' : 'POST',
+                      headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+                    });
+                    setIsFavorite(!isFavorite);
+                  } catch(e) {}
+                  setFavLoading(false);
+                }}
+                disabled={favLoading}
+                title="Favorite this class for Smart Notifications"
+              >
+                {isFavorite ? '⭐' : '☆'}
+              </button>
+            )}
           </div>
           <h1>{c.name}</h1>
           <p className="cd-dept">{c.department}</p>

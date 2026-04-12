@@ -16,3 +16,5 @@ gunicorn
 pdf2image
 pdf2image
 requests
+google-auth
+pywebpush

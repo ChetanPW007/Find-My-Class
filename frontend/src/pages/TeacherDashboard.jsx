@@ -27,13 +27,51 @@ function TeacherDashboard() {
     setWaveTrigger(prev => prev + 1);
   };
 
-  useEffect(() => {
     if (!localStorage.getItem('token') || localStorage.getItem('role') !== 'teacher') {
       navigate('/teacher/login');
       return;
     }
     loadClassrooms();
+    subscribeToPush();
   }, []);
+
+  const subscribeToPush = async () => {
+    if ('serviceWorker' in navigator && 'PushManager' in window && localStorage.getItem('role') === 'teacher') {
+      try {
+        const registration = await navigator.serviceWorker.ready;
+        let subscription = await registration.pushManager.getSubscription();
+        
+        if (!subscription) {
+          const VAPID_PUBLIC = import.meta.env.VITE_VAPID_PUBLIC_KEY;
+          if (!VAPID_PUBLIC) return;
+          
+          subscription = await registration.pushManager.subscribe({
+            userVisibleOnly: true,
+            applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC)
+          });
+          
+          await fetch('http://localhost:5000/api/students/push-subscribe', {
+            method: 'POST',
+            headers: { 
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${localStorage.getItem('token')}`
+            },
+            body: JSON.stringify(subscription)
+          });
+        }
+      } catch(e) {
+        console.error('Push subscription failed:', e);
+      }
+    }
+  };
+
+  const urlBase64ToUint8Array = (base64String) => {
+    const padding = '='.repeat((4 - base64String.length % 4) % 4);
+    const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+    const rawData = window.atob(base64);
+    return new Uint8Array([...rawData].map(char => char.charCodeAt(0)));
+  };
+
 
   const loadClassrooms = async () => {
     setLoading(true);

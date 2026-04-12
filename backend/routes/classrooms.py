@@ -196,6 +196,14 @@ def update_status(id):
 
     classrooms_col.update_one({"_id": ObjectId(id)}, {"$set": update})
     classroom = classrooms_col.find_one({"_id": ObjectId(id)})
+    
+    # Trigger smart notifications for students who favorited this class
+    try:
+        from routes.students import trigger_favorite_push
+        trigger_favorite_push(str(classroom["_id"]), classroom.get("name", "Class"), action)
+    except Exception as e:
+        print(f"Failed to trigger push: {e}")
+
     return jsonify(serialize_classroom(classroom))
 
 

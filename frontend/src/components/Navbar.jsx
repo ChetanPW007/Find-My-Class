@@ -10,6 +10,7 @@ function Navbar({ role, name, extra }) {
     localStorage.removeItem('role');
     localStorage.removeItem('name');
     localStorage.removeItem('user_id');
+    localStorage.removeItem('profile_image');
     navigate('/');
   };
 
@@ -35,6 +36,16 @@ function Navbar({ role, name, extra }) {
         <span className="nav-role">{getRoleLabel()}</span>
         {name && <span className="nav-name">{name}</span>}
         {extra && <div className="nav-extra">{extra}</div>}
+        {role === 'student' && localStorage.getItem('profile_image') && (
+          <img 
+            src={localStorage.getItem('profile_image')} 
+            alt="Profile" 
+            className="nav-profile-img"
+            onClick={() => document.dispatchEvent(new CustomEvent('open-profile'))}
+            style={{ width: '36px', height: '36px', borderRadius: '50%', cursor: 'pointer', border: '2px solid var(--primary)', marginLeft: '10px' }}
+            title="View Profile"
+          />
+        )}
         {role !== 'student' ? (
           <button className="btn btn-ghost btn-sm" onClick={handleLogout}>
             Logout
