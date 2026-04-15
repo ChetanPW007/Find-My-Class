@@ -12,18 +12,32 @@ import AdminDashboard from './pages/AdminDashboard';
 function App() {
   const [showSplash, setShowSplash] = useState(true);
 
+  // Persistent Login Redirection
+  const renderProtectedRoute = (Component, roleRequired) => {
+    const token = localStorage.getItem('token');
+    const role = localStorage.getItem('role');
+    
+    if (token && role === roleRequired) {
+      return <Navigate to={`/${role}/dashboard`} replace />;
+    }
+    return <Component />;
+  };
+
   return (
     <>
       {showSplash && <SplashScreen onComplete={() => setShowSplash(false)} />}
       <Router>
       <Routes>
         <Route path="/" element={<LandingPage />} />
-        <Route path="/student/auth" element={<StudentAuth />} />
+        
+        {/* Auth Routes with redirection if already logged in */}
+        <Route path="/student/auth" element={renderProtectedRoute(StudentAuth, 'student')} />
+        <Route path="/teacher/login" element={renderProtectedRoute(TeacherLogin, 'teacher')} />
+        <Route path="/admin/login" element={renderProtectedRoute(AdminLogin, 'admin')} />
+
         <Route path="/student/dashboard" element={<StudentDashboard />} />
         <Route path="/student" element={<Navigate to="/student/auth" replace />} />
-        <Route path="/teacher/login" element={<TeacherLogin />} />
         <Route path="/teacher/dashboard" element={<TeacherDashboard />} />
-        <Route path="/admin/login" element={<AdminLogin />} />
         <Route path="/admin/dashboard" element={<AdminDashboard />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>

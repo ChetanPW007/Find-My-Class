@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { searchClassrooms } from '../api';
+import api from '../api';
 import Navbar from '../components/Navbar';
 import ClassroomCard from '../components/ClassroomCard';
 import ChatBot from '../components/ChatBot';
@@ -39,11 +40,8 @@ function StudentDashboard() {
 
   const fetchFavorites = async () => {
     try {
-      const res = await fetch('http://localhost:5000/api/students/profile', {
-        headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
-      });
-      const data = await res.json();
-      if (data.favorites) setFavorites(data.favorites);
+      const res = await api.get('/students/profile');
+      if (res.data.favorites) setFavorites(res.data.favorites);
     } catch(e) {}
   };
 
@@ -63,14 +61,7 @@ function StudentDashboard() {
             applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC)
           });
           
-          await fetch('http://localhost:5000/api/students/push-subscribe', {
-            method: 'POST',
-            headers: { 
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${localStorage.getItem('token')}`
-            },
-            body: JSON.stringify(subscription)
-          });
+          await api.post('/students/push-subscribe', subscription);
         }
       } catch(e) {
         console.error('Push subscription failed:', e);

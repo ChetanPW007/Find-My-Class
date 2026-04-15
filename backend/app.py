@@ -19,7 +19,7 @@ from routes.students import trigger_user_push
 import re
 
 app = Flask(__name__)
-CORS(app, resources={r"/api/*": {"origins": ["http://localhost:5173", "https://find-my-class.vercel.app"]}})
+CORS(app, resources={r"/api/*": {"origins": "*"}})
 
 # Register blueprints
 app.register_blueprint(auth_bp)

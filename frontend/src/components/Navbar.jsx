@@ -46,15 +46,9 @@ function Navbar({ role, name, extra }) {
             title="View Profile"
           />
         )}
-        {role !== 'student' ? (
-          <button className="btn btn-ghost btn-sm" onClick={handleLogout}>
-            Logout
-          </button>
-        ) : (
-          <button className="btn btn-ghost btn-sm" onClick={() => navigate('/')}>
-            ← Home
-          </button>
-        )}
+        <button className="btn btn-ghost btn-sm" onClick={handleLogout}>
+          Logout
+        </button>
       </div>
     </nav>
   );

@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google';
+import api from '../api';
 import './AuthPage.css';
 
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || 'PLACEHOLDER_KEY';
@@ -32,7 +33,6 @@ function StudentAuth() {
   // State for new user custom info step (Google or Manual Signup)
   const [needsDetails, setNeedsDetails] = useState(false);
   const [googleData, setGoogleData] = useState(null);
-  const [manualDept, setManualDept] = useState(false);
   
   const [formData, setFormData] = useState({
     name: '',
@@ -46,27 +46,27 @@ function StudentAuth() {
     usn: ''
   });
 
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token && localStorage.getItem('role') === 'student') {
+      navigate('/student/dashboard', { replace: true });
+    }
+  }, [navigate]);
+
   const handleGoogleSuccess = async (credentialResponse) => {
     setLoading(true);
     setError('');
     try {
-      const res = await fetch('http://localhost:5000/api/students/google-auth', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ token: credentialResponse.credential })
-      });
-      const data = await res.json();
+      const res = await api.post('/students/google-auth', { token: credentialResponse.credential });
       
       if (res.status === 206) {
-        setGoogleData(data.google_data);
+        setGoogleData(res.data.google_data);
         setNeedsDetails(true);
-      } else if (res.ok) {
-        finishLogin(data);
       } else {
-        throw new Error(data.error || 'Google Auth Failed');
+        finishLogin(res.data);
       }
     } catch (err) {
-      setError(err.message);
+      setError(err.response?.data?.error || err.message || 'Google Auth Failed');
     }
     setLoading(false);
   };
@@ -78,20 +78,14 @@ function StudentAuth() {
     
     try {
       if (mode === 'login') {
-        const res = await fetch('http://localhost:5000/api/students/login', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email: formData.email, password: formData.password })
-        });
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.error);
-        finishLogin(data);
+        const res = await api.post('/students/login', { email: formData.email, password: formData.password });
+        finishLogin(res.data);
       } else {
         // Mode is signup (initial fields)
         setNeedsDetails(true);
       }
     } catch (err) {
-      setError(err.message);
+      setError(err.response?.data?.error || err.message);
     }
     setLoading(false);
   };
@@ -111,19 +105,13 @@ function StudentAuth() {
       dept: finalDept
     };
 
-    const endpoint = googleData ? 'complete-signup' : 'signup';
+    const endpoint = googleData ? '/students/complete-signup' : '/students/signup';
 
     try {
-      const res = await fetch(`http://localhost:5000/api/students/${endpoint}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error);
-      finishLogin(data);
+      const res = await api.post(endpoint, payload);
+      finishLogin(res.data);
     } catch (err) {
-      setError(err.message);
+      setError(err.response?.data?.error || err.message);
     }
     setLoading(false);
   };
