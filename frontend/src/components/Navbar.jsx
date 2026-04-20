@@ -36,13 +36,13 @@ function Navbar({ role, name, extra }) {
         <span className="nav-role">{getRoleLabel()}</span>
         {name && <span className="nav-name">{name}</span>}
         {extra && <div className="nav-extra">{extra}</div>}
-        {role === 'student' && localStorage.getItem('profile_image') && (
+        {role === 'student' && (
           <img 
-            src={localStorage.getItem('profile_image')} 
+            src={localStorage.getItem('profile_image') || `https://ui-avatars.com/api/?name=${encodeURIComponent(localStorage.getItem('name') || 'Student')}&background=random`}
             alt="Profile" 
             className="nav-profile-img"
             onClick={() => document.dispatchEvent(new CustomEvent('open-profile'))}
-            style={{ width: '36px', height: '36px', borderRadius: '50%', cursor: 'pointer', border: '2px solid var(--primary)', marginLeft: '10px' }}
+            style={{ width: '36px', height: '36px', borderRadius: '50%', cursor: 'pointer', border: '2px solid var(--primary)', marginLeft: '10px', objectFit: 'cover' }}
             title="View Profile"
           />
         )}

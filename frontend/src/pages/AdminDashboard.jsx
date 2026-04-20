@@ -67,6 +67,7 @@ function AdminDashboard() {
           {activeTab === 'teachers' && <TeachersManager showToast={showToast} />}
           {activeTab === 'departments' && <DepartmentsManager showToast={showToast} />}
           {activeTab === 'timetable' && <TimetableEditor showToast={showToast} />}
+          {activeTab === 'predictions' && <PredictionPanel showToast={showToast} />}
         </div>
       </div>
       <AdminChatBot />

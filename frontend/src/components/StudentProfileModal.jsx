@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import api from '../api';
 
 function StudentProfileModal({ onClose }) {
   const [profile, setProfile] = useState(null);
@@ -15,14 +16,11 @@ function StudentProfileModal({ onClose }) {
 
   const fetchProfile = async () => {
     try {
-      const res = await fetch('http://localhost:5000/api/students/profile', {
-        headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
-      });
-      const data = await res.json();
-      setProfile(data);
-      setSemester(data.semester);
+      const res = await api.get('/students/profile');
+      setProfile(res.data);
+      setSemester(res.data.semester || '');
     } catch (err) {
-      console.error(err);
+      console.error('Failed to load profile:', err);
     }
     setLoading(false);
   };
@@ -30,18 +28,11 @@ function StudentProfileModal({ onClose }) {
   const handleSave = async () => {
     setSaving(true);
     try {
-      await fetch('http://localhost:5000/api/students/profile', {
-        method: 'PUT',
-        headers: { 
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}` 
-        },
-        body: JSON.stringify({ semester })
-      });
+      await api.put('/students/profile', { semester });
       setProfile(prev => ({...prev, semester}));
       onClose();
     } catch (err) {
-      console.error(err);
+      console.error('Failed to update semester:', err);
     }
     setSaving(false);
   };
