@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { getUpcomingClasses } from '../api';
+import api from '../api';
 import './ClassroomDetailsModal.css';
 
 function ClassroomDetailsModal({ classroom, onClose, role, onStartClass, loading: actionLoading }) {
@@ -34,12 +35,9 @@ function ClassroomDetailsModal({ classroom, onClose, role, onStartClass, loading
     if (role === 'student') {
       const fetchFav = async () => {
         try {
-          const res = await fetch('http://localhost:5000/api/students/profile', {
-            headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
-          });
-          const data = await res.json();
-          if (data && data.favorites) {
-            setIsFavorite(data.favorites.includes(c._id));
+          const res = await api.get('/students/profile');
+          if (res.data && res.data.favorites) {
+            setIsFavorite(res.data.favorites.includes(c._id));
           }
         } catch(e) {}
       }
@@ -84,10 +82,12 @@ function ClassroomDetailsModal({ classroom, onClose, role, onStartClass, loading
                   setIsAnimating(true);
                   setTimeout(() => setIsAnimating(false), 500);
                   try {
-                    await fetch(`http://localhost:5000/api/students/favorites/${c._id}`, {
-                      method: isFavorite ? 'DELETE' : 'POST',
-                      headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
-                    });
+                    const endpoint = `/students/favorites/${c._id}`;
+                    if (isFavorite) {
+                      await api.delete(endpoint);
+                    } else {
+                      await api.post(endpoint, {});
+                    }
                     setIsFavorite(!isFavorite);
                     // Notify dashboard to re-sort
                     document.dispatchEvent(new CustomEvent('favorites-updated'));
