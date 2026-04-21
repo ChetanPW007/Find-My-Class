@@ -34,9 +34,9 @@ function LandingPage() {
             Find My <span className="gradient-text">Class</span>
           </h1>
           <p className="hero-subtitle">
-            Locate classrooms, labs, and departments instantly. 
-            Get real-time occupancy status and AI-powered search 
-            across your entire campus.
+            Locate classrooms, labs, and departments instantly.
+            Get real-time occupancy status and AI-powered search
+            across your entire campus with AI-powered plagrism detection system.
           </p>
         </div>
 
