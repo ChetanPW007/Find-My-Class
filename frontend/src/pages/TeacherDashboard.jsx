@@ -51,14 +51,7 @@ function TeacherDashboard() {
             applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC)
           });
           
-          await fetch('http://localhost:5000/api/students/push-subscribe', {
-            method: 'POST',
-            headers: { 
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${localStorage.getItem('token')}`
-            },
-            body: JSON.stringify(subscription)
-          });
+          await api.post('/students/push-subscribe', subscription);
         }
       } catch(e) {
         console.error('Push subscription failed:', e);

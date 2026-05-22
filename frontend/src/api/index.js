@@ -87,4 +87,15 @@ export const savePlagiarismReport = (data) =>
 export const getForensicStatus = () =>
   api.get('/plagiarism/forensic-status');
 
+// Student Auth & Portal
+export const studentGoogleAuth = (token) => api.post('/students/google-auth', { token });
+export const studentCompleteSignup = (payload) => api.post('/students/complete-signup', payload);
+export const studentLogin = (email, password) => api.post('/students/login', { email, password });
+export const studentSignup = (payload) => api.post('/students/signup', payload);
+export const getStudentProfile = () => api.get('/students/profile');
+export const updateStudentProfile = (semester) => api.put('/students/profile', { semester });
+export const toggleFavoriteRoom = (id, isFavorite) => 
+  isFavorite ? api.delete(`/students/favorites/${id}`) : api.post(`/students/favorites/${id}`);
+export const subscribePush = (subscription) => api.post('/students/push-subscribe', subscription);
+
 export default api;

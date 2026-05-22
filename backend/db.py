@@ -21,6 +21,14 @@ users_col = db["users"]
 notifications_col = db["notifications"]
 plagiarism_reports_col = db["plagiarism_reports"]
 
+# Create indexes for high-speed lookups and authentication
+try:
+    users_col.create_index("username", sparse=True)
+    users_col.create_index("email", sparse=True)
+    classrooms_col.create_index("name")
+except Exception as e:
+    print(f"[!] Database indexing skipped: {e}")
+
 # Seed in-memory database automatically on startup if empty!
 if "mongomock" in str(type(client)) and users_col.count_documents({}) == 0:
     import seed
