@@ -85,7 +85,8 @@ def push_monitor_loop():
                 # Check Manual Sessions
                 manual_rooms = list(classrooms_col.find({"status": "occupied", "occupied_at": {"$ne": None}}))
                 for room in manual_rooms:
-                    free_at = room["occupied_at"] + datetime.timedelta(hours=1)
+                    dur = room.get("duration_minutes", 60) or 60
+                    free_at = room["occupied_at"] + datetime.timedelta(minutes=dur)
                     remaining = (free_at - now).total_seconds() / 60
                     if 0 < remaining <= 5:
                         push_id = f"manual-{room['_id']}-{now.date()}"

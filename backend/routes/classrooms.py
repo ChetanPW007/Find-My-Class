@@ -14,37 +14,41 @@ def serialize_classroom(c):
 
 
 def auto_free_classrooms():
-    """Lazily mark classrooms as free if occupied for more than 1 hour"""
+    """Lazily mark classrooms as free if they have exceeded their occupied duration"""
     now = datetime.datetime.now()
-    one_hour_ago = now - datetime.timedelta(hours=1)
-    
-    # Find occupied classrooms with occupied_at before one_hour_ago
-    # Or classrooms that are occupied but don't have occupied_at (legacy or manual start)
-    # If they don't have occupied_at, we can't be sure, but let's assume if we just added the feature,
-    # we only track new ones. Or we can set a default if missing.
-    
-    # Update classrooms where status is 'occupied' and occupied_at < one_hour_ago
-    # Note: we store occupied_at as ISO string or datetime object? Let's use ISO strings for simplicity with JSON, 
-    # but datetime objects are better for MongoDB queries. I'll use datetime objects.
-    
-    query = {
-        "status": "occupied",
-        "occupied_at": {"$lt": one_hour_ago}
-    }
-    
-    update = {
-        "$set": {
-            "status": "free",
-            "current_teacher": "",
-            "current_teacher_id": "",
-            "current_subject": "",
-            "current_semester": "",
-            "current_section": "",
-            "occupied_at": None
-        }
-    }
-    
-    classrooms_col.update_many(query, update)
+    occupied_rooms = list(classrooms_col.find({"status": "occupied"}))
+    for room in occupied_rooms:
+        occ_at = room.get("occupied_at")
+        if not occ_at:
+            classrooms_col.update_one({"_id": room["_id"]}, {"$set": {
+                "status": "free",
+                "current_teacher": "",
+                "current_teacher_id": "",
+                "current_subject": "",
+                "current_semester": "",
+                "current_section": "",
+                "occupied_at": None,
+                "duration_minutes": 0,
+                "start_time": "",
+                "end_time": ""
+            }})
+            continue
+        
+        dur = room.get("duration_minutes", 60) or 60
+        free_at = occ_at + datetime.timedelta(minutes=dur)
+        if now >= free_at:
+            classrooms_col.update_one({"_id": room["_id"]}, {"$set": {
+                "status": "free",
+                "current_teacher": "",
+                "current_teacher_id": "",
+                "current_subject": "",
+                "current_semester": "",
+                "current_section": "",
+                "occupied_at": None,
+                "duration_minutes": 0,
+                "start_time": "",
+                "end_time": ""
+            }})
 
 
 @classrooms_bp.route("/api/classrooms", methods=["GET"])
@@ -174,6 +178,12 @@ def update_status(id):
         return jsonify({"error": "Classroom not found"}), 404
 
     if action == "start":
+        duration_min = data.get("duration", 60)
+        try:
+            duration_min = int(duration_min)
+        except (ValueError, TypeError):
+            duration_min = 60
+        
         update = {
             "status": "occupied",
             "current_teacher": request.user.get("name", ""),
@@ -181,7 +191,10 @@ def update_status(id):
             "current_subject": data.get("subject", ""),
             "current_semester": data.get("semester", ""),
             "current_section": data.get("section", ""),
-            "occupied_at": datetime.datetime.now()
+            "occupied_at": datetime.datetime.now(),
+            "duration_minutes": duration_min,
+            "start_time": data.get("start_time", ""),
+            "end_time": data.get("end_time", "")
         }
     else:
         update = {
@@ -191,7 +204,10 @@ def update_status(id):
             "current_subject": "",
             "current_semester": "",
             "current_section": "",
-            "occupied_at": None
+            "occupied_at": None,
+            "duration_minutes": 0,
+            "start_time": "",
+            "end_time": ""
         }
 
     classrooms_col.update_one({"_id": ObjectId(id)}, {"$set": update})

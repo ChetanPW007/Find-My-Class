@@ -199,7 +199,7 @@ def schedule_check():
             e["start_time"] = start_t
             result["ended"].append(e)
 
-    # ─── Manual Occupancy Check (1-hour rule) ──────────────────────────
+    # ─── Manual Occupancy Check (uses custom duration) ──────────────────
     user_id = request.user.get("user_id")
     if user_id:
         manual_rooms = list(classrooms_col.find({
@@ -210,8 +210,8 @@ def schedule_check():
 
         for room in manual_rooms:
             occ_at = room["occupied_at"]
-            # occ_at is a datetime object
-            free_at = occ_at + datetime.timedelta(hours=1)
+            dur = room.get("duration_minutes", 60) or 60
+            free_at = occ_at + datetime.timedelta(minutes=dur)
             remaining = (free_at - now).total_seconds() / 60
 
             manual_info = {

@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getClassrooms, updateClassroomStatus, getUpcomingClasses } from '../api';
+import { getClassrooms, updateClassroomStatus, getUpcomingClasses, getScheduleCheck } from '../api';
 import Navbar from '../components/Navbar';
 import ClassroomDetailsModal from '../components/ClassroomDetailsModal';
 import ScheduleMonitor from '../components/ScheduleMonitor';
@@ -78,10 +78,10 @@ function TeacherDashboard() {
     setLoading(false);
   };
 
-  const handleStatusUpdate = async (classroomId, action, subject = '', semester = '', section = '') => {
+  const handleStatusUpdate = async (classroomId, action, subject = '', semester = '', section = '', duration = 60, startTime = '', endTime = '') => {
     setActionLoading((prev) => ({ ...prev, [classroomId]: true }));
     try {
-      await updateClassroomStatus(classroomId, { action, subject, semester, section });
+      await updateClassroomStatus(classroomId, { action, subject, semester, section, duration, start_time: startTime, end_time: endTime });
       await loadClassrooms();
       showToast(action === 'start' ? '✅ Class started!' : '🔴 Class ended!', 'success');
     } catch (err) {
@@ -257,8 +257,10 @@ function TeacherDashboard() {
                     {c.status === 'free' ? (
                       <StartClassForm
                         classroomId={c._id}
+                        classroomName={c.name}
+                        roomNumber={c.room_number}
                         loading={actionLoading[c._id]}
-                        onStart={(subject, sem, sec) => handleStatusUpdate(c._id, 'start', subject, sem, sec)}
+                        onStart={(subject, sem, sec, dur, st, et) => handleStatusUpdate(c._id, 'start', subject, sem, sec, dur, st, et)}
                       />
                     ) : c.current_teacher_id === userId ? (
                       <button
@@ -292,57 +294,161 @@ function TeacherDashboard() {
   );
 }
 
-function StartClassForm({ classroomId, loading, onStart }) {
+function StartClassForm({ classroomId, classroomName, roomNumber, loading, onStart }) {
   const [subject, setSubject] = useState('');
   const [semester, setSemester] = useState('1');
   const [section, setSection] = useState('');
   const [showForm, setShowForm] = useState(false);
+  const [mode, setMode] = useState('manual'); // 'auto' | 'manual'
+  const [duration, setDuration] = useState(60);
+  const [startTime, setStartTime] = useState('');
+  const [endTime, setEndTime] = useState('');
+  const [useCustomTime, setUseCustomTime] = useState(false);
+  const [autoData, setAutoData] = useState(null);
+  const [autoLoading, setAutoLoading] = useState(false);
+
+  const fetchAutoData = async () => {
+    setAutoLoading(true);
+    try {
+      const res = await getScheduleCheck();
+      const data = res.data;
+      // Look for an ongoing or upcoming class that matches this room
+      const allClasses = [...(data.ongoing || []), ...(data.warning || [])];
+      const match = allClasses.find(cls => {
+        const cn = (cls.classroom || '').toLowerCase();
+        return cn === (classroomName || '').toLowerCase() || cn === (roomNumber || '').toLowerCase();
+      });
+      if (match) {
+        setAutoData(match);
+        setSubject(match.subject || '');
+        setSemester(match.semester || '1');
+        setSection(match.section || '');
+        if (match.start_time) setStartTime(match.start_time);
+        if (match.end_time) setEndTime(match.end_time);
+        setUseCustomTime(true);
+      } else {
+        setAutoData(null);
+      }
+    } catch (e) {
+      console.warn('Auto-fetch failed:', e);
+    }
+    setAutoLoading(false);
+  };
+
+  const handleConfirm = () => {
+    const st = useCustomTime ? startTime : '';
+    const et = useCustomTime ? endTime : '';
+    const dur = useCustomTime && startTime && endTime
+      ? computeDuration(startTime, endTime)
+      : duration;
+    onStart(subject, semester, section, dur, st, et);
+    setShowForm(false);
+    setSubject(''); setSection(''); setAutoData(null);
+    setUseCustomTime(false); setStartTime(''); setEndTime('');
+  };
+
+  const computeDuration = (s, e) => {
+    const [sh, sm] = s.split(':').map(Number);
+    const [eh, em] = e.split(':').map(Number);
+    return Math.max((eh * 60 + em) - (sh * 60 + sm), 10);
+  };
+
+  // Set current time as default start
+  const setNowAsStart = () => {
+    const now = new Date();
+    setStartTime(`${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`);
+  };
 
   if (!showForm) {
     return (
-      <button className="btn btn-success" style={{ width: '100%' }} onClick={() => setShowForm(true)}>
+      <button className="btn btn-success" style={{ width: '100%' }} onClick={() => { setShowForm(true); setNowAsStart(); }}>
         ▶️ Start Class
       </button>
     );
   }
 
   return (
-    <div className="start-form">
-      <div style={{ display: 'flex', gap: '8px', marginBottom: '8px' }}>
-        <input
-          className="input"
-          style={{ flex: 2 }}
-          placeholder="Subject name"
-          value={subject}
-          onChange={(e) => setSubject(e.target.value)}
-        />
-        <select 
-          className="select" 
-          style={{ flex: 1 }}
-          value={semester} 
-          onChange={(e) => setSemester(e.target.value)}
+    <div className="start-form animate-fade-in" style={{ background: 'var(--bg-surface)', border: '1px solid var(--border)', borderRadius: 'var(--radius-md)', padding: '16px' }}>
+      {/* Mode Tabs */}
+      <div style={{ display: 'flex', gap: '6px', marginBottom: '12px' }}>
+        <button
+          className={`tab ${mode === 'manual' ? 'active' : ''}`}
+          style={{ flex: 1, fontSize: '0.8rem', padding: '6px' }}
+          onClick={() => setMode('manual')}
         >
+          ✏️ Manual
+        </button>
+        <button
+          className={`tab ${mode === 'auto' ? 'active' : ''}`}
+          style={{ flex: 1, fontSize: '0.8rem', padding: '6px' }}
+          onClick={() => { setMode('auto'); fetchAutoData(); }}
+        >
+          ⚡ Auto-Fill
+        </button>
+      </div>
+
+      {/* Auto-Fill Notice */}
+      {mode === 'auto' && (
+        <div style={{ marginBottom: '10px', padding: '8px', background: autoData ? 'rgba(52,211,153,0.1)' : 'rgba(239,68,68,0.08)', borderRadius: '8px', fontSize: '0.8rem' }}>
+          {autoLoading ? '⏳ Searching timetable...' : autoData
+            ? `✅ Found: ${autoData.subject} (${autoData.start_time || ''} — ${autoData.end_time || ''})`
+            : '⚠️ No matching class found in timetable for now. Fill manually below.'}
+        </div>
+      )}
+
+      {/* Subject + Semester + Section */}
+      <div style={{ display: 'flex', gap: '8px', marginBottom: '8px' }}>
+        <input className="input" style={{ flex: 2 }} placeholder="Subject name" value={subject} onChange={(e) => setSubject(e.target.value)} />
+        <select className="select" style={{ flex: 1 }} value={semester} onChange={(e) => setSemester(e.target.value)}>
           {[1,2,3,4,5,6,7,8].map(s => <option key={s} value={s}>Sem {s}</option>)}
         </select>
-        <input
-          className="input"
-          style={{ flex: 1 }}
-          placeholder="Sec (e.g. CY2A)"
-          value={section}
-          maxLength={4}
-          onChange={(e) => setSection(e.target.value.toUpperCase())}
-        />
+        <input className="input" style={{ flex: 1 }} placeholder="Sec" value={section} maxLength={6} onChange={(e) => setSection(e.target.value.toUpperCase())} />
       </div>
+
+      {/* Time Toggle */}
+      <div style={{ marginBottom: '10px' }}>
+        <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.82rem', cursor: 'pointer', color: 'var(--text-secondary)' }}>
+          <input type="checkbox" checked={useCustomTime} onChange={(e) => setUseCustomTime(e.target.checked)} style={{ accentColor: 'var(--primary)' }} />
+          ⏰ Set Custom Start & End Time
+        </label>
+      </div>
+
+      {useCustomTime ? (
+        <div style={{ display: 'flex', gap: '8px', marginBottom: '10px', alignItems: 'center' }}>
+          <div style={{ flex: 1 }}>
+            <label style={{ fontSize: '0.72rem', color: 'var(--text-secondary)', display: 'block', marginBottom: '3px' }}>Start Time</label>
+            <input className="input" type="time" value={startTime} onChange={(e) => setStartTime(e.target.value)} />
+          </div>
+          <span style={{ fontSize: '1.2rem', paddingTop: '14px', opacity: 0.4 }}>→</span>
+          <div style={{ flex: 1 }}>
+            <label style={{ fontSize: '0.72rem', color: 'var(--text-secondary)', display: 'block', marginBottom: '3px' }}>End Time</label>
+            <input className="input" type="time" value={endTime} onChange={(e) => setEndTime(e.target.value)} />
+          </div>
+        </div>
+      ) : (
+        <div style={{ marginBottom: '10px' }}>
+          <label style={{ fontSize: '0.72rem', color: 'var(--text-secondary)', display: 'block', marginBottom: '4px' }}>⏱️ Duration</label>
+          <div style={{ display: 'flex', gap: '6px' }}>
+            {[30, 60, 90, 120].map(d => (
+              <button
+                key={d}
+                className={`tab ${duration === d ? 'active' : ''}`}
+                style={{ flex: 1, fontSize: '0.75rem', padding: '5px 0' }}
+                onClick={() => setDuration(d)}
+              >
+                {d >= 60 ? `${d/60}h` : `${d}m`}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Confirm / Cancel */}
       <div style={{ display: 'flex', gap: '8px' }}>
-        <button
-          className="btn btn-success"
-          style={{ flex: 1 }}
-          onClick={() => { onStart(subject, semester, section); setShowForm(false); setSubject(''); setSection(''); }}
-          disabled={loading}
-        >
-          {loading ? 'Starting...' : '✅ Confirm'}
+        <button className="btn btn-success" style={{ flex: 1 }} onClick={handleConfirm} disabled={loading}>
+          {loading ? 'Starting...' : '✅ Start Class'}
         </button>
-        <button className="btn btn-ghost" onClick={() => setShowForm(false)}>✖</button>
+        <button className="btn btn-ghost" onClick={() => { setShowForm(false); setAutoData(null); }}>✖</button>
       </div>
     </div>
   );
@@ -360,13 +466,14 @@ function ActiveRoomCard({ classroom, onEnd, onSelect, loading }) {
       }
     }).catch(e => console.warn('Failed to fetch upcoming:', e));
 
-    // Timer for auto-free (1 hour from occupied_at)
+    // Timer for auto-free (uses custom duration or defaults to 1 hour)
     if (!classroom.occupied_at) return;
 
     const updateTimer = () => {
       const occAt = new Date(classroom.occupied_at).getTime();
       const now = new Date().getTime();
-      const diff = 3600000 - (now - occAt); // 1 hour in ms
+      const durationMs = (classroom.duration_minutes || 60) * 60000;
+      const diff = durationMs - (now - occAt);
 
       if (diff <= 0) {
         setTimeLeft('Auto-freeing...');
@@ -397,6 +504,11 @@ function ActiveRoomCard({ classroom, onEnd, onSelect, loading }) {
             <div className="tc-detail" style={{ color: '#059669', fontWeight: 'bold' }}>
               ⏱️ Auto-free in: {timeLeft || '--:--'}
             </div>
+            {classroom.end_time && (
+              <div className="tc-detail" style={{ fontSize: '0.82rem', marginTop: '4px', color: 'var(--accent)' }}>
+                🕐 Scheduled End: <b>{classroom.end_time}</b>
+              </div>
+            )}
             {upcoming && (
               <div className="tc-detail" style={{ fontSize: '0.85rem', marginTop: '4px' }}>
                 ⏭️ Up Next: <b>{upcoming.subject}</b> ({upcoming.time_slot})
