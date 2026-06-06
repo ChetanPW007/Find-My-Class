@@ -18,7 +18,11 @@ self.addEventListener('push', function(event) {
   const options = {
     body: data.body || 'New update available.',
     icon: '/icons.svg',
-    badge: '/favicon.svg'
+    badge: '/favicon.svg',
+    sound: '/notification.wav',
+    vibrate: [200, 100, 200],
+    tag: 'findmyclass-alert',
+    renotify: true
   };
 
   // Broadcast to all active clients (tabs)
