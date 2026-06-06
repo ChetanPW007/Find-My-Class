@@ -57,6 +57,62 @@ def trigger_favorite_push(class_id, classroom_name, action):
                 else:
                     print(f"Web Push Error: {repr(ex)}")
 
+def trigger_teacher_push(teacher_id, teacher_name, classroom_name, semester, action):
+    """Trigger Push notifications to all students who favorited this teacher and belong to the same semester"""
+    if not teacher_id:
+        return
+    try:
+        from pywebpush import webpush, WebPushException
+    except ImportError:
+        return
+
+    VAPID_PRIVATE_KEY = os.getenv("VAPID_PRIVATE_KEY")
+    VAPID_SUBJECT = os.getenv("VAPID_SUBJECT", "mailto:admin@findmyclass.com")
+
+    if not VAPID_PRIVATE_KEY:
+        return
+
+    try:
+        sem_val = str(semester)
+        sem_int = int(semester)
+    except:
+        sem_val = semester
+        sem_int = None
+
+    sem_query = [sem_val]
+    if sem_int is not None:
+        sem_query.append(sem_int)
+
+    students = list(users_col.find({
+        "role": "student",
+        "favorite_teachers": str(teacher_id),
+        "semester": {"$in": sem_query}
+    }))
+
+    message = f"👨‍🏫 Your favorite teacher {teacher_name} is now {'starting' if action == 'start' else 'ending'} class in {classroom_name} (Sem {semester})!"
+
+    payload = json.dumps({
+        "title": "Teacher Alert",
+        "body": message
+    })
+
+    for student in students:
+        subs = student.get("push_subscriptions", [])
+        for sub in subs:
+            try:
+                webpush(
+                    subscription_info=sub,
+                    data=payload,
+                    vapid_private_key=VAPID_PRIVATE_KEY,
+                    vapid_claims={"sub": VAPID_SUBJECT}
+                )
+            except WebPushException as ex:
+                if ex.response and ex.response.status_code in [404, 410]:
+                    users_col.update_one(
+                        {"_id": student["_id"]},
+                        {"$pull": {"push_subscriptions": sub}}
+                    )
+
 def trigger_user_push(user_id, title, body):
     """Generic helper to push notification to any user by ID"""
     try:
@@ -174,6 +230,7 @@ def complete_signup():
         "dept": data.get("dept"),
         "semester": data.get("semester"),
         "favorites": [],
+        "favorite_teachers": [],
         "push_subscriptions": []
     }
     
@@ -250,6 +307,22 @@ def toggle_favorite(class_id):
         return jsonify({"success": True, "action": "added"})
     elif request.method == "DELETE":
         users_col.update_one({"_id": ObjectId(user_id)}, {"$pull": {"favorites": class_id}})
+        return jsonify({"success": True, "action": "removed"})
+
+@students_bp.route("/api/students/favorite-teachers/<teacher_id>", methods=["POST", "DELETE"])
+def toggle_favorite_teacher(teacher_id):
+    auth_header = request.headers.get("Authorization")
+    if not auth_header: return jsonify({"error": "No auth token"}), 401
+    try:
+        user_id = jwt.decode(auth_header.split(" ")[1], SECRET_KEY, algorithms=["HS256"]).get("user_id")
+    except:
+        return jsonify({"error": "Invalid token"}), 401
+
+    if request.method == "POST":
+        users_col.update_one({"_id": ObjectId(user_id)}, {"$addToSet": {"favorite_teachers": teacher_id}})
+        return jsonify({"success": True, "action": "added"})
+    elif request.method == "DELETE":
+        users_col.update_one({"_id": ObjectId(user_id)}, {"$pull": {"favorite_teachers": teacher_id}})
         return jsonify({"success": True, "action": "removed"})
 
 
@@ -335,6 +408,7 @@ def manual_signup():
         "semester": data.get("semester"),
         "profile_image": "",
         "favorites": [],
+        "favorite_teachers": [],
         "push_subscriptions": []
     }
     

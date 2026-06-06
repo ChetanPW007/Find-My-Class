@@ -3,7 +3,7 @@ from bson import ObjectId
 from routes.auth import token_required, admin_required
 import re
 import datetime
-from db import classrooms_col
+from db import classrooms_col, users_col
 
 classrooms_bp = Blueprint("classrooms", __name__)
 
@@ -215,8 +215,21 @@ def update_status(id):
     
     # Trigger smart notifications for students who favorited this class
     try:
-        from routes.students import trigger_favorite_push
+        from routes.students import trigger_favorite_push, trigger_teacher_push
         trigger_favorite_push(str(classroom["_id"]), classroom.get("name", "Class"), action)
+
+        teacher_uid = request.user.get("user_id")
+        if teacher_uid:
+            teacher_user = users_col.find_one({"_id": ObjectId(teacher_uid)})
+            teacher_id = teacher_user.get("teacher_id") if teacher_user else None
+            if teacher_id:
+                trigger_teacher_push(
+                    teacher_id,
+                    classroom.get("current_teacher", "Teacher"),
+                    classroom.get("name", "Classroom"),
+                    classroom.get("current_semester", ""),
+                    action
+                )
     except Exception as e:
         print(f"Failed to trigger push: {e}")
 

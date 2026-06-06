@@ -81,6 +81,31 @@ def push_monitor_loop():
                                         f"Your class in {e.get('classroom')} ends in {mins_to_end} minutes."
                                     )
                                     last_pushed_slots.add(push_id)
+                                    
+                    start_meta = next((s for s in DEFAULT_SLOTS if s["slot"] == slot_num), None)
+                    if start_meta:
+                        start_t = start_meta["start"]
+                        start_h, start_m = map(int, start_t.split(":"))
+                        cur_h, cur_m = map(int, now.strftime("%H:%M").split(":"))
+                        mins_to_start = (start_h * 60 + start_m) - (cur_h * 60 + cur_m)
+                        
+                        if 0 < mins_to_start <= 5:
+                            push_id_start = f"upcoming-{e['_id']}-{now.date()}"
+                            if push_id_start not in last_pushed_slots:
+                                teacher_user = users_col.find_one({
+                                    "role": "teacher",
+                                    "$or": [
+                                        {"name": e.get("teacher")},
+                                        {"username": e.get("teacher")}
+                                    ]
+                                })
+                                if teacher_user:
+                                    trigger_user_push(
+                                        str(teacher_user["_id"]), 
+                                        "⏰ Upcoming Class", 
+                                        f"Your class in {e.get('classroom')} starts in {mins_to_start} minutes."
+                                    )
+                                    last_pushed_slots.add(push_id_start)
                 
                 # Check Manual Sessions
                 manual_rooms = list(classrooms_col.find({"status": "occupied", "occupied_at": {"$ne": None}}))
