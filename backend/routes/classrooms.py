@@ -173,8 +173,8 @@ def update_status(id):
     if action not in ["start", "end"]:
         return jsonify({"error": "Action must be 'start' or 'end'"}), 400
 
-    classroom = classrooms_col.find_one({"_id": ObjectId(id)})
-    if not classroom:
+    old_classroom = classrooms_col.find_one({"_id": ObjectId(id)})
+    if not old_classroom:
         return jsonify({"error": "Classroom not found"}), 404
 
     if action == "start":
@@ -218,16 +218,19 @@ def update_status(id):
         from routes.students import trigger_favorite_push, trigger_teacher_push
         trigger_favorite_push(str(classroom["_id"]), classroom.get("name", "Class"), action)
 
-        teacher_uid = request.user.get("user_id")
-        if teacher_uid:
-            teacher_user = users_col.find_one({"_id": ObjectId(teacher_uid)})
+        t_uid = classroom.get("current_teacher_id") if action == "start" else (classroom.get("current_teacher_id") or old_classroom.get("current_teacher_id") or request.user.get("user_id"))
+        t_name = classroom.get("current_teacher") if action == "start" else (classroom.get("current_teacher") or old_classroom.get("current_teacher") or "Teacher")
+        t_sem = classroom.get("current_semester") if action == "start" else (classroom.get("current_semester") or old_classroom.get("current_semester") or "")
+
+        if t_uid:
+            teacher_user = users_col.find_one({"_id": ObjectId(t_uid)})
             teacher_id = teacher_user.get("teacher_id") if teacher_user else None
             if teacher_id:
                 trigger_teacher_push(
                     teacher_id,
-                    classroom.get("current_teacher", "Teacher"),
+                    t_name,
                     classroom.get("name", "Classroom"),
-                    classroom.get("current_semester", ""),
+                    t_sem,
                     action
                 )
     except Exception as e:

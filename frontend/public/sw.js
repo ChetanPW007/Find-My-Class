@@ -13,7 +13,6 @@ self.addEventListener('notificationclick', function(event) {
 });
 
 self.addEventListener('push', function(event) {
-  // Handle push notifications from a server if needed in future
   const data = event.data ? event.data.json() : {};
   const title = data.title || 'FindMyClass Alert';
   const options = {
@@ -21,5 +20,19 @@ self.addEventListener('push', function(event) {
     icon: '/icons.svg',
     badge: '/favicon.svg'
   };
+
+  // Broadcast to all active clients (tabs)
+  if (self.clients) {
+    self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then(function(clientList) {
+      clientList.forEach(function(client) {
+        client.postMessage({
+          type: 'PUSH_NOTIFICATION',
+          title: title,
+          body: options.body
+        });
+      });
+    });
+  }
+
   event.waitUntil(self.registration.showNotification(title, options));
 });
