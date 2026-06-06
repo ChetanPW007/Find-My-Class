@@ -44,6 +44,107 @@
   --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+/* ===== LIGHT MODE THEME ===== */
+body.light-mode {
+  --primary: #0055DD;
+  --primary-dark: #003DA5;
+  --primary-light: #2277FF;
+  --primary-glow: rgba(0, 85, 221, 0.2);
+  --accent: #0099CC;
+  --accent-glow: rgba(0, 153, 204, 0.15);
+
+  --bg-dark: #E8ECF2;
+  --bg-main: #F0F4F8;
+  --bg-surface: #FFFFFF;
+  --bg-surface-light: #E2E8F0;
+  --bg-surface-hover: #D5DCE6;
+  --bg-card: rgba(255, 255, 255, 0.9);
+
+  --text-primary: #1A202C;
+  --text-secondary: #4A5568;
+  --text-muted: #718096;
+  --text-accent: #0077AA;
+
+  --success: #059669;
+  --success-bg: rgba(5, 150, 105, 0.12);
+  --danger: #DC2626;
+  --danger-bg: rgba(220, 38, 38, 0.1);
+  --warning: #D97706;
+  --warning-bg: rgba(217, 119, 6, 0.1);
+
+  --border: rgba(0, 0, 0, 0.08);
+  --border-light: rgba(0, 0, 0, 0.12);
+
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.08);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.12);
+  --shadow-glow: 0 0 20px var(--primary-glow);
+}
+
+body.light-mode .glass {
+  background: rgba(255, 255, 255, 0.6);
+  border-color: rgba(0, 0, 0, 0.06);
+}
+
+body.light-mode .glass-strong {
+  background: rgba(255, 255, 255, 0.85);
+  border-color: rgba(0, 0, 0, 0.1);
+}
+
+body.light-mode .navbar {
+  background: rgba(255, 255, 255, 0.92) !important;
+  border-bottom-color: rgba(0, 0, 0, 0.08);
+}
+
+body.light-mode .glow-border {
+  border-color: rgba(0, 85, 221, 0.2);
+  box-shadow: 0 0 15px rgba(0, 85, 221, 0.06), inset 0 0 15px rgba(0, 85, 221, 0.03);
+}
+
+body.light-mode .in-app-notification-toast {
+  background: rgba(255, 255, 255, 0.97);
+  border-left-color: var(--primary);
+}
+
+body.light-mode ::-webkit-scrollbar-track {
+  background: #E8ECF2;
+}
+body.light-mode ::-webkit-scrollbar-thumb {
+  background: #CBD5E0;
+}
+
+body.light-mode .btn-ghost {
+  color: var(--text-primary);
+  border-color: rgba(0, 0, 0, 0.15);
+}
+body.light-mode .btn-ghost:hover {
+  background: #E2E8F0;
+  border-color: var(--primary);
+}
+
+body.light-mode .btn-accent {
+  color: #FFFFFF;
+}
+
+body.light-mode .auth-form,
+body.light-mode .role-card {
+  background: rgba(255, 255, 255, 0.8);
+}
+
+body.light-mode .landing-stats {
+  background: rgba(255, 255, 255, 0.6);
+}
+
+body.light-mode .role-card:hover {
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1), 0 0 30px var(--primary-glow);
+}
+
+body.light-mode .page-header h1 {
+  background: linear-gradient(135deg, var(--text-primary), var(--primary));
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+
 * {
   margin: 0;
   padding: 0;
@@ -666,5 +767,157 @@ tr:hover {
 }
 
 
+/* ===== CELESTIAL THEME TOGGLE ===== */
+.theme-toggle-wrap {
+  position: relative;
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 4px;
+}
 
+.theme-toggle {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  outline: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Dark mode state → Moon */
+.theme-toggle.is-dark {
+  background: linear-gradient(135deg, #1a1a3e, #2d2d6e);
+  box-shadow:
+    0 0 12px rgba(100, 100, 255, 0.3),
+    inset -6px -2px 0 0 #c5c5e8;
+}
+
+/* Light mode state → Sun */
+.theme-toggle.is-light {
+  background: linear-gradient(135deg, #FDB813, #F5A623);
+  box-shadow:
+    0 0 16px rgba(253, 184, 19, 0.5),
+    0 0 40px rgba(253, 184, 19, 0.2);
+}
+
+/* Sun rays container */
+.sun-rays {
+  position: absolute;
+  inset: 0;
+  transition: opacity 0.5s ease, transform 0.6s ease;
+}
+
+.theme-toggle.is-dark .sun-rays {
+  opacity: 0;
+  transform: rotate(-90deg) scale(0.5);
+}
+.theme-toggle.is-light .sun-rays {
+  opacity: 1;
+  transform: rotate(0deg) scale(1);
+  animation: spin-slow 10s linear infinite;
+}
+
+.sun-ray {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 3px;
+  height: 8px;
+  margin-left: -1.5px;
+  margin-top: -24px;
+  background: rgba(255, 255, 255, 0.85);
+  border-radius: 2px;
+  transform-origin: 1.5px 24px;
+}
+
+.sun-ray:nth-child(1) { transform: rotate(0deg); }
+.sun-ray:nth-child(2) { transform: rotate(45deg); }
+.sun-ray:nth-child(3) { transform: rotate(90deg); }
+.sun-ray:nth-child(4) { transform: rotate(135deg); }
+.sun-ray:nth-child(5) { transform: rotate(180deg); }
+.sun-ray:nth-child(6) { transform: rotate(225deg); }
+.sun-ray:nth-child(7) { transform: rotate(270deg); }
+.sun-ray:nth-child(8) { transform: rotate(315deg); }
+
+/* Moon craters */
+.moon-craters {
+  position: absolute;
+  inset: 0;
+  transition: opacity 0.5s ease;
+}
+
+.theme-toggle.is-dark .moon-craters {
+  opacity: 0.5;
+}
+.theme-toggle.is-light .moon-craters {
+  opacity: 0;
+}
+
+.crater {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(150, 150, 200, 0.25);
+}
+.crater-1 { width: 6px; height: 6px; top: 10px; left: 8px; }
+.crater-2 { width: 4px; height: 4px; top: 20px; left: 16px; }
+.crater-3 { width: 5px; height: 5px; top: 14px; left: 22px; }
+
+/* Stars that appear around the moon */
+.toggle-stars {
+  position: absolute;
+  inset: -4px;
+  transition: opacity 0.5s ease;
+}
+
+.theme-toggle.is-dark .toggle-stars {
+  opacity: 1;
+}
+.theme-toggle.is-light .toggle-stars {
+  opacity: 0;
+}
+
+.toggle-star {
+  position: absolute;
+  width: 2px;
+  height: 2px;
+  background: #ffffff;
+  border-radius: 50%;
+  animation: twinkle 2s ease-in-out infinite alternate;
+}
+
+.toggle-star:nth-child(1) { top: 4px; right: 4px; animation-delay: 0s; }
+.toggle-star:nth-child(2) { bottom: 8px; right: 2px; animation-delay: 0.5s; }
+.toggle-star:nth-child(3) { top: 8px; left: 2px; animation-delay: 1s; }
+
+.theme-toggle:hover {
+  transform: scale(1.12);
+}
+
+.theme-toggle:active {
+  transform: scale(0.92);
+}
+
+@keyframes spin-slow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes twinkle {
+  0% { opacity: 0.3; transform: scale(0.8); }
+  100% { opacity: 1; transform: scale(1.2); }
+}
+
+/* Smooth body transition for theme change */
+body {
+  transition: background-color 0.4s ease, color 0.4s ease;
+}
 
