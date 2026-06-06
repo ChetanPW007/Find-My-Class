@@ -309,7 +309,7 @@ function StudentDashboard() {
                 <p>Try a different search query</p>
               </div>
             ) : (
-              <div className="teachers-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '20px' }}>
+              <div className="teachers-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '20px' }}>
                 {sortedTeachers.map((t) => {
                   const isFav = favoriteTeachers.includes(t._id);
                   const activeClass = classrooms.find(

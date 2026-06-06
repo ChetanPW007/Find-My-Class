@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getClassrooms, updateClassroomStatus, getUpcomingClasses, getScheduleCheck } from '../api';
+import api, { getClassrooms, updateClassroomStatus, getUpcomingClasses, getScheduleCheck } from '../api';
 import Navbar from '../components/Navbar';
 import ClassroomDetailsModal from '../components/ClassroomDetailsModal';
 import ScheduleMonitor from '../components/ScheduleMonitor';
@@ -397,12 +397,12 @@ function StartClassForm({ classroomId, classroomName, roomNumber, loading, onSta
       )}
 
       {/* Subject + Semester + Section */}
-      <div style={{ display: 'flex', gap: '8px', marginBottom: '8px' }}>
-        <input className="input" style={{ flex: 2 }} placeholder="Subject name" value={subject} onChange={(e) => setSubject(e.target.value)} />
-        <select className="select" style={{ flex: 1 }} value={semester} onChange={(e) => setSemester(e.target.value)}>
+      <div style={{ display: 'flex', gap: '8px', marginBottom: '8px', flexWrap: 'wrap' }}>
+        <input className="input" style={{ flex: '2 1 150px' }} placeholder="Subject name" value={subject} onChange={(e) => setSubject(e.target.value)} />
+        <select className="select" style={{ flex: '1 1 80px' }} value={semester} onChange={(e) => setSemester(e.target.value)}>
           {[1,2,3,4,5,6,7,8].map(s => <option key={s} value={s}>Sem {s}</option>)}
         </select>
-        <input className="input" style={{ flex: 1 }} placeholder="Sec" value={section} maxLength={6} onChange={(e) => setSection(e.target.value.toUpperCase())} />
+        <input className="input" style={{ flex: '1 1 60px' }} placeholder="Sec" value={section} maxLength={6} onChange={(e) => setSection(e.target.value.toUpperCase())} />
       </div>
 
       {/* Time Toggle */}

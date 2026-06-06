@@ -228,7 +228,7 @@ function ClassroomsManager({ showToast }) {
                 <td>{c.department}</td>
                 <td>
                   <div>{c.building}, {c.floor}</div>
-                  <div style={{fontSize: '0.85em', color: '#666'}}>Room {c.room_number} {c.landmark && `(${c.landmark})`}</div>
+                  <div style={{fontSize: '0.85em', color: 'var(--text-muted)'}}>Room {c.room_number} {c.landmark && `(${c.landmark})`}</div>
                 </td>
                 <td><span className="badge badge-info">{c.type}</span></td>
                 <td>{c.capacity}</td>
@@ -435,7 +435,7 @@ function TeachersManager({ showToast }) {
               {editId && (
                 <div className="form-group">
                   <label>Username</label>
-                  <input className="input" value={form.username} disabled style={{ backgroundColor: '#f0f0f0', color: '#888' }} />
+                  <input className="input" value={form.username} disabled style={{ backgroundColor: 'var(--bg-surface-light)', color: 'var(--text-muted)' }} />
                   <small style={{ color: '#888', marginTop: '4px' }}>Username and password cannot be edited here.</small>
                 </div>
               )}

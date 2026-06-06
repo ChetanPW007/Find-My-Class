@@ -86,7 +86,7 @@ function StudentProfileModal({ onClose }) {
                { label: 'Mobile', value: profile.mobile, icon: '📱' },
                { label: 'Email', value: profile.email, icon: '📧' }
              ].map((item, idx) => (
-               <div key={idx} className="glass-strong" style={{ padding: '12px', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.1)' }}>
+               <div key={idx} className="glass-strong" style={{ padding: '12px', borderRadius: '12px', border: '1px solid var(--border-light)' }}>
                   <small style={{ display: 'flex', alignItems: 'center', gap: '5px', opacity: 0.6, fontSize: '0.75rem', marginBottom: '4px' }}>
                      {item.icon} {item.label}
                   </small>

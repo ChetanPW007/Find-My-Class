@@ -58,6 +58,17 @@
 
 @media (max-width: 640px) {
   .nav-name { display: none; }
+  .nav-role { font-size: 0.7rem; padding: 3px 8px; }
+  .navbar { padding: 0 12px; }
+  .logo-text { font-size: 0.95rem; }
+}
+
+@media (max-width: 400px) {
+  .navbar { padding: 0 8px; gap: 4px; }
+  .nav-right { gap: 6px; }
+  .nav-role { display: none; }
+  .logo-text { display: none; }
+  .logo-icon { font-size: 1.5rem; }
 }
 
 .nav-extra {

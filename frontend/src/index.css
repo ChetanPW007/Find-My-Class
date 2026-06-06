@@ -145,6 +145,34 @@ body.light-mode .page-header h1 {
   background-clip: text;
 }
 
+body.light-mode .chatbot-header {
+  background: rgba(0, 85, 221, 0.04);
+}
+
+body.light-mode .chatbot-input {
+  background: var(--bg-surface);
+}
+
+body.light-mode .chat-msg.bot .msg-content {
+  background: var(--bg-surface);
+}
+
+body.light-mode .subject-pill {
+  background: rgba(0, 0, 0, 0.04) !important;
+}
+
+body.light-mode .active-class-details {
+  background: rgba(220, 38, 38, 0.04) !important;
+}
+
+body.light-mode .modal-overlay {
+  background: rgba(0, 0, 0, 0.4);
+}
+
+body.light-mode .teacher-card:hover {
+  border-color: rgba(0, 0, 0, 0.15);
+}
+
 * {
   margin: 0;
   padding: 0;

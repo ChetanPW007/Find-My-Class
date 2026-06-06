@@ -302,3 +302,65 @@
   }
 }
 
+/* Light Mode Overrides */
+body.light-mode .sm-panel {
+  background: rgba(255, 255, 255, 0.9);
+  border-color: rgba(0, 0, 0, 0.08);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.12), 0 5px 15px rgba(0, 0, 0, 0.08);
+}
+
+body.light-mode .sm-panel-header {
+  color: var(--text-primary);
+  border-bottom-color: rgba(0, 0, 0, 0.06);
+  background: rgba(0, 0, 0, 0.02);
+}
+
+body.light-mode .sm-action-btn {
+  border-color: rgba(0, 0, 0, 0.1);
+  background: rgba(0, 0, 0, 0.03);
+  color: var(--text-secondary);
+}
+
+body.light-mode .sm-action-btn:hover {
+  background: rgba(239, 68, 68, 0.08);
+}
+
+body.light-mode .sm-empty {
+  color: var(--text-muted);
+}
+body.light-mode .sm-empty p {
+  color: var(--text-secondary);
+}
+
+body.light-mode .sm-item {
+  border-bottom-color: rgba(0, 0, 0, 0.05);
+}
+body.light-mode .sm-item:hover {
+  background: rgba(0, 0, 0, 0.02);
+}
+
+body.light-mode .sm-item-msg {
+  color: var(--text-primary);
+}
+
+body.light-mode .sm-item-time {
+  color: var(--text-muted);
+}
+
+body.light-mode .sm-dismiss {
+  background: rgba(0, 0, 0, 0.04);
+  color: var(--text-muted);
+}
+
+body.light-mode .sm-footer {
+  color: var(--text-muted);
+  border-top-color: rgba(0, 0, 0, 0.06);
+  background: rgba(0, 0, 0, 0.02);
+}
+
+body.light-mode .sm-floating-toast {
+  background: rgba(255, 255, 255, 0.95);
+  border-color: rgba(0, 0, 0, 0.1);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+

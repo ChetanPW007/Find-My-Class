@@ -88,4 +88,22 @@
 
 @media (max-width: 640px) {
   .teacher-grid { grid-template-columns: 1fr; }
+  .teacher-hero h1 { font-size: 1.4rem; }
+  .section-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .start-form .tabs {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+  }
+}
+
+@media (max-width: 480px) {
+  .teacher-card {
+    padding: 14px;
+  }
+  .tc-header h3 {
+    font-size: 0.95rem;
+  }
 }
